@@ -2,7 +2,7 @@
 	<Box
 		v-bind="$attrs"
 		:class="rootClass"
-		:expand="expand"
+		:expand="expand ? '{`default`:{`xs`:{`light`:true}}}' : ''"
 		:style="style"
 		ref="navitem"
 		class="vp-navigator-item"
