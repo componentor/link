@@ -886,11 +886,15 @@
 		position: absolute;
 		min-width: 100%;
 		top: 100%;
+		left: 0px;
+	}
+
+	.vp-navigator-item--direction-left.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper {
+		left: auto;
+		right: 0px;
 	}
 
 	.vp-navigator-item--drop-up.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper {
-		position: absolute;
-		min-width: 100%;
 		top: auto;
 		bottom: 100%;
 	}
