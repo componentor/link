@@ -830,6 +830,7 @@
 		cursor: pointer;
 		align-items: stretch;
 		transition: border-color .3s linear, opacity .3s linear, color .3s linear, background .3s linear, background-color .3s linear;
+		flex-wrap: nowrap;
 	}
 
 	.vp-navigator-item--vertical.vp-navigator-item--show .vp-navigator-item--arrow {
