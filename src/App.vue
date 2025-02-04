@@ -23,7 +23,7 @@
 			:href="route || ''"
 			:target="target"
 			class="vp-navigator-item--link"
-			style="padding: 0 10px;display:inline-flex;align-items:center"
+			style="display:inline-flex;align-items:center"
 		>
 			<div
 				:style="{
@@ -39,9 +39,6 @@
 			:to="route || ''"
 			:href="route || ''"
 			:target="target"
-			:style="{
-				padding: '10px'
-			}"
 			style="white-space: nowrap;display:inline-flex;align-items:center;flex-grow:1"
 		>
 			{{ title }}
@@ -50,7 +47,7 @@
 			v-if="$slots.default"
 			@click.stop="show=!show"
 			class="vp-navigator-item--link vp-navigator-item--arrow"
-			style="padding: 0 10px;display:inline-flex;align-items:center"
+			style="display:inline-flex;align-items:center"
 		>
 			<div
 				:style="{
@@ -239,6 +236,15 @@
 				type: String,
 				default: '',
 				control: 'media',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			gap: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
 				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
@@ -665,7 +671,7 @@
 			style() {
 				this.childModel = {};
 				const style = {};
-				const props = ['fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'backgroundImage', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
+				const props = ['fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
 				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 				const themes = ['light', 'dark'];
