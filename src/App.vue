@@ -85,7 +85,6 @@
 	} from 'vue';
 	import Box from '@vueplayio/box';
 	export default {
-		wysiwyg: true,
 		inject: ['theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'model'],
 		provide() {
 			return {
