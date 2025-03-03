@@ -682,6 +682,7 @@
 							priority = JSON.parse(this[prop].replaceAll('`', '"'));
 						} catch (e) {}
 					}
+					console.log('priority', priority);
 					const fallback = this.model?.[prop] || {};
 					const merge = {};
 					for (const group of [...new Set([...Object.keys(priority), ...Object.keys(fallback)])]) {
