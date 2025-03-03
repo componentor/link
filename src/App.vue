@@ -677,12 +677,14 @@
 				const themes = ['light', 'dark'];
 				for (let prop of props) {
 					let priority = {};
+					let priclone = {};
 					if (this[prop]) {
 						try {
 							priority = JSON.parse(this[prop].replaceAll('`', '"'));
+							priclone = JSON.parse(JSON.stringify(priority));
 						} catch (e) {}
 					}
-					console.log('priority', priority);
+					console.log('priority', priclone);
 					const fallback = this.model?.[prop] || {};
 					const merge = {};
 					for (const group of [...new Set([...Object.keys(priority), ...Object.keys(fallback)])]) {
@@ -720,13 +722,13 @@
 									console.log('firstPriority', firstPriority);
 									console.log('secondPriority', secondPriority);
 									console.log('value', value);
-									console.log('1stpri', priority[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString());
-									console.log('2ndpri', priority[prop]?.[this.group]?.[breakpoint]?.['light']?.toString());
+									console.log('1stpri', priclone[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString());
+									console.log('2ndpri', priclone[prop]?.[this.group]?.[breakpoint]?.['light']?.toString());
 									let important = false;
 									if (value === firstPriority) {
-										important = priority[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
+										important = priclone[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
 									} else {
-										important = priority[prop]?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
+										important = priclone[prop]?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
 									}
 									console.log('important', important);
 									style[prop] = value + (important ? '!important' : '');
@@ -753,13 +755,13 @@
 										console.log('firstPriority', firstPriority);
 										console.log('secondPriority', secondPriority);
 										console.log('value', value);
-										console.log('1stpri', priority[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString());
-										console.log('2ndpri', priority[prop]?.['default']?.[breakpoint]?.['light']?.toString());
+										console.log('1stpri', priclone[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString());
+										console.log('2ndpri', priclone[prop]?.['default']?.[breakpoint]?.['light']?.toString());
 										let important = false;
 										if (value === firstPriority) {
-											important = priority[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
+											important = priclone[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
 										} else {
-											important = priority[prop]?.['default']?.[breakpoint]?.['light']?.toString() === value;
+											important = priclone[prop]?.['default']?.[breakpoint]?.['light']?.toString() === value;
 										}
 										console.log('important', important);
 										style[prop] = value + (important ? '!important' : '');
