@@ -711,7 +711,7 @@
 								const secondPriority = this.childModel[prop]?.[this.group]?.[breakpoint]?.['light']?.toString();
 								const value = firstPriority || secondPriority;
 								if (value) {
-									style[prop] = value;
+									style[prop] = value + (value === firstPriority ? '!important' : '');
 									match = true;
 								}
 								limitReached = breakpoint === limit;
@@ -726,7 +726,7 @@
 									const secondPriority = this.childModel[prop]?.['default']?.[breakpoint]?.['light']?.toString();
 									const value = firstPriority || secondPriority;
 									if (value) {
-										style[prop] = value;
+										style[prop] = value + (value === firstPriority ? '!important' : '');
 									}
 									limitReached = breakpoint === limit;
 								}
@@ -735,8 +735,8 @@
 					}
 				}
 				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
-				if (style['backgroundColorDrop']) {
-					if (this.level >= 1) {
+				if (style['backgroundColorDrop'] && !style['backgroundColor']?.includes('!important')) {
+					if (this.level > 1) {
 						style['backgroundColor'] = style['backgroundColorDrop'];
 					}
 					delete style['backgroundColorDrop'];
