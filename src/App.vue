@@ -677,14 +677,11 @@
 				const themes = ['light', 'dark'];
 				for (let prop of props) {
 					let priority = {};
-					let priclone = {};
 					if (this[prop]) {
 						try {
 							priority = JSON.parse(this[prop].replaceAll('`', '"'));
-							priclone = JSON.parse(JSON.stringify(priority));
 						} catch (e) {}
 					}
-					console.log('priority', JSON.stringify(priclone));
 					const fallback = this.model?.[prop] || {};
 					const merge = {};
 					for (const group of [...new Set([...Object.keys(priority), ...Object.keys(fallback)])]) {
@@ -714,23 +711,12 @@
 								const secondPriority = this.childModel[prop]?.[this.group]?.[breakpoint]?.['light']?.toString();
 								const value = firstPriority || secondPriority;
 								if (value) {
-									console.log('AAAA ---- AAAA');
-									console.log('prop', prop);
-									console.log('group', this.group);
-									console.log('breakpoint', breakpoint);
-									console.log('theme', this.theme);
-									console.log('firstPriority', firstPriority);
-									console.log('secondPriority', secondPriority);
-									console.log('value', value);
-									console.log('1stpri', priclone[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString());
-									console.log('2ndpri', priclone[prop]?.[this.group]?.[breakpoint]?.['light']?.toString());
 									let important = false;
 									if (value === firstPriority) {
-										important = priclone[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
+										important = priority?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
 									} else {
-										important = priclone[prop]?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
+										important = priority?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
 									}
-									console.log('important', important);
 									style[prop] = value + (important ? '!important' : '');
 									style[prop] = style[prop].replace('!important!important', '!important');
 									match = true;
@@ -747,23 +733,12 @@
 									const secondPriority = this.childModel[prop]?.['default']?.[breakpoint]?.['light']?.toString();
 									const value = firstPriority || secondPriority;
 									if (value) {
-										console.log('BBBB ---- BBBB');
-										console.log('prop', prop);
-										console.log('group', 'default');
-										console.log('breakpoint', breakpoint);
-										console.log('theme', this.theme);
-										console.log('firstPriority', firstPriority);
-										console.log('secondPriority', secondPriority);
-										console.log('value', value);
-										console.log('1stpri', priclone[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString());
-										console.log('2ndpri', priclone[prop]?.['default']?.[breakpoint]?.['light']?.toString());
 										let important = false;
 										if (value === firstPriority) {
-											important = priclone[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
+											important = priority?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
 										} else {
-											important = priclone[prop]?.['default']?.[breakpoint]?.['light']?.toString() === value;
+											important = priority?.['default']?.[breakpoint]?.['light']?.toString() === value;
 										}
-										console.log('important', important);
 										style[prop] = value + (important ? '!important' : '');
 										style[prop] = style[prop].replace('!important!important', '!important');
 									}
@@ -775,8 +750,6 @@
 				}
 				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
 				if (style['backgroundColorDrop'] && !style['backgroundColor']?.includes('!important')) {
-					console.log('backgroundColorDrop', style['backgroundColorDrop']);
-					console.log('backgroundColor', style['backgroundColor']);
 					if (this.level >= 1) {
 						style['backgroundColor'] = style['backgroundColorDrop'];
 					}
