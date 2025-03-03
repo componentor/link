@@ -718,6 +718,7 @@
 										important = this[prop]?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
 									}
 									style[prop] = value + (important ? '!important' : '');
+									style[prop] = style[prop].replace('!important!important', '!important');
 									match = true;
 								}
 								limitReached = breakpoint === limit;
@@ -739,6 +740,7 @@
 											important = this[prop]?.['default']?.[breakpoint]?.['light']?.toString() === value;
 										}
 										style[prop] = value + (value === firstPriority ? '!important' : '');
+										style[prop] = style[prop].replace('!important!important', '!important');
 									}
 									limitReached = breakpoint === limit;
 								}
@@ -748,7 +750,7 @@
 				}
 				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
 				if (style['backgroundColorDrop'] && !style['backgroundColor']?.includes('!important')) {
-					if (this.level > 1) {
+					if (this.level >= 1) {
 						style['backgroundColor'] = style['backgroundColorDrop'];
 					}
 					delete style['backgroundColorDrop'];
