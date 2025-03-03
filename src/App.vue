@@ -684,7 +684,7 @@
 							priclone = JSON.parse(JSON.stringify(priority));
 						} catch (e) {}
 					}
-					console.log('priority', priclone);
+					console.log('priority', JSON.stringify(priclone));
 					const fallback = this.model?.[prop] || {};
 					const merge = {};
 					for (const group of [...new Set([...Object.keys(priority), ...Object.keys(fallback)])]) {
