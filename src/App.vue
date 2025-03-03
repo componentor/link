@@ -711,12 +711,23 @@
 								const secondPriority = this.childModel[prop]?.[this.group]?.[breakpoint]?.['light']?.toString();
 								const value = firstPriority || secondPriority;
 								if (value) {
+									console.log('AAAA ---- AAAA');
+									console.log('prop', prop);
+									console.log('group', this.group);
+									console.log('breakpoint', breakpoint);
+									console.log('theme', this.theme);
+									console.log('firstPriority', firstPriority);
+									console.log('secondPriority', secondPriority);
+									console.log('value', value);
+									console.log('1stpri', priority[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString());
+									console.log('2ndpri', priority[prop]?.[this.group]?.[breakpoint]?.['light']?.toString());
 									let important = false;
 									if (value === firstPriority) {
 										important = priority[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
 									} else {
 										important = priority[prop]?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
 									}
+									console.log('important', important);
 									style[prop] = value + (important ? '!important' : '');
 									style[prop] = style[prop].replace('!important!important', '!important');
 									match = true;
@@ -733,12 +744,23 @@
 									const secondPriority = this.childModel[prop]?.['default']?.[breakpoint]?.['light']?.toString();
 									const value = firstPriority || secondPriority;
 									if (value) {
+										console.log('BBBB ---- BBBB');
+										console.log('prop', prop);
+										console.log('group', 'default');
+										console.log('breakpoint', breakpoint);
+										console.log('theme', this.theme);
+										console.log('firstPriority', firstPriority);
+										console.log('secondPriority', secondPriority);
+										console.log('value', value);
+										console.log('1stpri', priority[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString());
+										console.log('2ndpri', priority[prop]?.['default']?.[breakpoint]?.['light']?.toString());
 										let important = false;
 										if (value === firstPriority) {
 											important = priority[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
 										} else {
 											important = priority[prop]?.['default']?.[breakpoint]?.['light']?.toString() === value;
 										}
+										console.log('important', important);
 										style[prop] = value + (important ? '!important' : '');
 										style[prop] = style[prop].replace('!important!important', '!important');
 									}
@@ -750,6 +772,8 @@
 				}
 				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
 				if (style['backgroundColorDrop'] && !style['backgroundColor']?.includes('!important')) {
+					console.log('backgroundColorDrop', style['backgroundColorDrop']);
+					console.log('backgroundColor', style['backgroundColor']);
 					if (this.level >= 1) {
 						style['backgroundColor'] = style['backgroundColorDrop'];
 					}
