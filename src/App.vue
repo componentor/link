@@ -711,7 +711,13 @@
 								const secondPriority = this.childModel[prop]?.[this.group]?.[breakpoint]?.['light']?.toString();
 								const value = firstPriority || secondPriority;
 								if (value) {
-									style[prop] = value + (value === firstPriority ? '!important' : '');
+									let important = false;
+									if (value === firstPriority) {
+										important = this[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
+									} else {
+										important = this[prop]?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
+									}
+									style[prop] = value + (important ? '!important' : '');
 									match = true;
 								}
 								limitReached = breakpoint === limit;
@@ -726,6 +732,12 @@
 									const secondPriority = this.childModel[prop]?.['default']?.[breakpoint]?.['light']?.toString();
 									const value = firstPriority || secondPriority;
 									if (value) {
+										let important = false;
+										if (value === firstPriority) {
+											important = this[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
+										} else {
+											important = this[prop]?.['default']?.[breakpoint]?.['light']?.toString() === value;
+										}
 										style[prop] = value + (value === firstPriority ? '!important' : '');
 									}
 									limitReached = breakpoint === limit;
