@@ -713,9 +713,9 @@
 								if (value) {
 									let important = false;
 									if (value === firstPriority) {
-										important = this[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
+										important = priority[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
 									} else {
-										important = this[prop]?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
+										important = priority[prop]?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
 									}
 									style[prop] = value + (important ? '!important' : '');
 									style[prop] = style[prop].replace('!important!important', '!important');
@@ -735,11 +735,11 @@
 									if (value) {
 										let important = false;
 										if (value === firstPriority) {
-											important = this[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
+											important = priority[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
 										} else {
-											important = this[prop]?.['default']?.[breakpoint]?.['light']?.toString() === value;
+											important = priority[prop]?.['default']?.[breakpoint]?.['light']?.toString() === value;
 										}
-										style[prop] = value + (value === firstPriority ? '!important' : '');
+										style[prop] = value + (important ? '!important' : '');
 										style[prop] = style[prop].replace('!important!important', '!important');
 									}
 									limitReached = breakpoint === limit;
