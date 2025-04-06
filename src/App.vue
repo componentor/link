@@ -838,6 +838,7 @@
 
 	.vp-navigator-item,
 	.vp-box.vp-navigator-item {
+		display: flex;
 		position: relative;
 		overflow: visible;
 		padding: 0;
