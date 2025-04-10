@@ -4,9 +4,10 @@
 		:class="rootClass"
 		:expand="expand ? '{`default`:{`xs`:{`light`:true}}}' : ''"
 		:style="style"
+		:title="route"
 		ref="navitem"
 		class="vp-navigator-item"
-		@click.stop="($event.pointerType !== 'mouse' || $vertical) && $slots.default && !route ? show=!show : ''"
+		@click.stop="($event.pointerType !== 'mouse' || $vertical) && $slots.default && !route ? show=!show : go($event, route, external, target)"
 		@pointerover="$event.pointerType !== 'mouse' || $vertical ? '' : show=true"
 		@pointerover.stop="hover=true"
 		@pointerleave="$event.pointerType !== 'mouse' || $vertical ? '' : show=false"
@@ -825,6 +826,19 @@
 			handleClickOutside(event) {
 				if (this.show && this.$refs.navitem && !this.$refs.navitem.$el.contains(event.target)) {
 					this.show = false;
+				}
+			},
+			go(event, route, external, target = '') {
+				const shouldOpenInNewTab = !target && (event.metaKey || event.ctrlKey);
+				if (!external) {
+					if (shouldOpenInNewTab) {
+						window.open(this.$router.resolve(route)
+							.href, '_blank');
+					} else {
+						this.$router.push(route);
+					}
+				} else {
+					window.open(route, target || (shouldOpenInNewTab ? '_blank' : '_self'));
 				}
 			}
 		}
