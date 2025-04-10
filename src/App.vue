@@ -750,7 +750,7 @@
 				}
 				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
 				if (style['backgroundColorDrop'] && !style['backgroundColor']?.includes('!important')) {
-					if (this.level >= 1) {
+					if (this.level >= 1 || (this.forceOpen || this.forceOpenProvider) && this.small) {
 						style['backgroundColor'] = style['backgroundColorDrop'];
 					}
 					delete style['backgroundColorDrop'];
