@@ -61,8 +61,8 @@
 			<div
 				class="wrapper"
 				:class="{
-				'vp-navigator-item--up': drop === 'up'
-			}"
+					'vp-navigator-item--up': drop === 'up'
+				}"
 				:style="{ 'z-index': level ? level + 1 : 1 }"
 			>
 				<slot />
@@ -73,8 +73,8 @@
 			v-if="$slots.default && (show || forceOpen || forceOpenProvider)"
 			class="wrapper"
 			:class="{
-			'vp-navigator-item--up': drop === 'up'
-		}"
+				'vp-navigator-item--up': drop === 'up'
+			}"
 		>
 			<slot />
 		</div>
@@ -611,6 +611,7 @@
 			current() {
 				let route = this.route?.replace(/^\/|\/$/g, '');
 				let path = this.$route?.path?.replace(/^\/|\/$/g, '');
+				if (!route && this.$slots.default) return false;
 				return route && route === path || !route && this.$route?.path === '/' || route === '/' && !this.$route?.path;
 			},
 			group() {
