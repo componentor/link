@@ -840,15 +840,15 @@
 		},
 		watch: {
 			pathId(id) {
-				console.log(this.title, 'something happened', id, this.currentPathId);
 				if (this.currentPathId !== id && this.show) {
 					this.show = false;
+				} else if (this.currentPathId === id) {
+					this.show = true;
 				}
 			}
 		},
 		methods: {
 			toggle(forceOpen = false) {
-				console.log('toggling...', forceOpen);
 				if (forceOpen) {
 					this.show = true;
 				} else {
@@ -859,7 +859,6 @@
 					this.currentPathId = [...Array(8)].map(() => Math.random()
 							.toString(36)[2])
 						.join('');
-					console.log('set pathid', this.currentPathId);
 					this.setPath(this.currentPath, this.currentPathId);
 				}
 			},
