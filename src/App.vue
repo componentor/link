@@ -86,7 +86,7 @@
 	} from 'vue';
 	import Box from '@vueplayio/box';
 	export default {
-		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'model'],
+		inject: ['path', 'pathId', 'pathIdRec', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'model'],
 		provide() {
 			return {
 				setPath(path, id) {
@@ -838,8 +838,18 @@
 			}
 		},
 		watch: {
-			pathId(id) {
-				console.log('pathid changed', id, this.title);
+			pathId: {
+				handler(id) {
+					console.log('pathid changed', id, this.title);
+					if (this.currentPathId !== id && this.show) {
+						console.log(this.currentPathId, 'is not', id);
+						this.show = false;
+					}
+				},
+				deep: true
+			},
+			pathIdRec(id) {
+				console.log('pathidrec changed', id, this.title);
 				if (this.currentPathId !== id && this.show) {
 					console.log(this.currentPathId, 'is not', id);
 					this.show = false;
