@@ -612,6 +612,7 @@
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
+			console.log('check', this.$vertical, this.pathId, this.route, this.$route?.path, this.show);
 			if (this.$vertical && !this.pathId && this.route && this.$route?.path === this.route && !this.show) {
 				this.toggle();
 			}
@@ -844,12 +845,14 @@
 		},
 		methods: {
 			toggle() {
+				console.log('toggling...');
 				this.show = !this.show;
 				if (this.show) {
 					this.currentPath = this.route;
 					this.currentPathId = [...Array(8)].map(() => Math.random()
 							.toString(36)[2])
 						.join('');
+					console.log('set path', this.currentPath);
 					this.setPath(this.currentPath, this.currentPathId);
 				}
 			},
