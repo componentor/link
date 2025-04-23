@@ -7,7 +7,7 @@
 		:title="route"
 		ref="navitem"
 		class="vp-navigator-item"
-		@click.stop="($event.pointerType !== 'mouse' || $vertical) && $slots.default && !route ? show=!show : go($event, route, external, target)"
+		@click.stop="($event.pointerType !== 'mouse' || $vertical) && $slots.default && !route ? toggle() : go($event, route, external, target)"
 		@pointerover="$event.pointerType !== 'mouse' || $vertical ? '' : show=true"
 		@pointerover.stop="hover=true"
 		@pointerleave="$event.pointerType !== 'mouse' || $vertical ? '' : show=false"
@@ -86,9 +86,14 @@
 	} from 'vue';
 	import Box from '@vueplayio/box';
 	export default {
-		inject: ['theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'model'],
+		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'model'],
 		provide() {
 			return {
+				setPath(path, id) {
+					this.currentPath = path;
+					this.currentPathId = id;
+					this.setPath(path, id);
+				},
 				open: computed(() => this.show),
 				forceOpenProvider: computed(() => this.forceOpen || this.forceOpenProvider),
 				level: computed(() => this.level ? this.level + 1 : 1),
@@ -595,6 +600,8 @@
 			Box: Box
 		},
 		data: () => ({
+			currentPath: '',
+			currentPathId: '',
 			show: false,
 			childModel: {},
 			hover: false,
@@ -823,9 +830,26 @@
 				return style;
 			}
 		},
+		watch: {
+			pathId(id) {
+				if (this.currentPathId !== id && this.show) {
+					this.show = false;
+				}
+			}
+		},
 		methods: {
+			toggle() {
+				this.show = !this.show;
+				if (this.show) {
+					this.currentPath = this.route;
+					this.currentPathId = [...Array(8)].map(() => Math.random()
+							.toString(36)[2])
+						.join('');
+					this.setPath(this.currentPath, this.currentPathId);
+				}
+			},
 			handleClickOutside(event) {
-				if (this.show && this.$refs.navitem && !this.$refs.navitem.$el.contains(event.target)) {
+				if (!this.$vertical && this.show && this.$refs.navitem && !this.$refs.navitem.$el.contains(event.target)) {
 					this.show = false;
 				}
 			},
