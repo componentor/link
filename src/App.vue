@@ -614,7 +614,9 @@
 			document.addEventListener('click', this.handleClickOutside);
 			console.log('check', this.$vertical, this.pathId, this.route, this.$route?.path, this.show);
 			if (this.$vertical && !this.pathId && this.route && this.$route?.path === this.route && !this.show) {
-				this.toggle(true);
+				this.$nextTick(() => {
+					this.toggle(true);
+				});
 			}
 		},
 		beforeUnmount() {
