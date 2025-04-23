@@ -90,6 +90,7 @@
 		provide() {
 			return {
 				setPath(path, id) {
+					console.log('Setting path', path, id);
 					this.currentPath = path;
 					this.currentPathId = id;
 					this.setPath(path, id);
@@ -611,6 +612,7 @@
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
 			if (this.$vertical && !this.pathId && this.route && this.$route?.path === this.route && !this.show) {
+				console.log(this.$route?.path, 'is eq 2', this.route);
 				this.toggle();
 			}
 		},
@@ -836,6 +838,7 @@
 		watch: {
 			pathId(id) {
 				if (this.currentPathId !== id && this.show) {
+					console.log(this.currentPathId, 'is not', id);
 					this.show = false;
 				}
 			}
@@ -848,6 +851,7 @@
 					this.currentPathId = [...Array(8)].map(() => Math.random()
 							.toString(36)[2])
 						.join('');
+					console.log('setting', this.currentPath, this.currentPathId, 'for', this.route);
 					this.setPath(this.currentPath, this.currentPathId);
 				}
 			},
