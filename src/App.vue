@@ -70,7 +70,7 @@
 		</template>
 	</Box> <template v-if="$vertical">
 		<div
-			v-if="$slots.default && (show || forceOpen || forceOpenProvider)"
+			v-show="$slots.default && (show || forceOpen || forceOpenProvider)"
 			class="wrapper"
 			:class="{
 				'vp-navigator-item--up': drop === 'up'
@@ -612,6 +612,7 @@
 			focus: false
 		}),
 		mounted() {
+			console.log(this.$vertical, this.pathId, this.route);
 			document.addEventListener('click', this.handleClickOutside);
 			if (this.$vertical && !this.pathId && this.route && this.$route?.path === this.route && !this.show) {
 				console.log(this.$route?.path, 'is eq 2', this.route);
