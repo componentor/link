@@ -610,6 +610,9 @@
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
+			if (this.$vertical && !this.pathId && this.route && this.$route?.path === this.route && !this.show) {
+				this.toggle();
+			}
 		},
 		beforeUnmount() {
 			document.removeEventListener('click', this.handleClickOutside);
@@ -856,6 +859,7 @@
 			go(event, route, external, target = '') {
 				const shouldOpenInNewTab = !target && (event.metaKey || event.ctrlKey);
 				if (!external) {
+					if (!this.$router) return;
 					if (shouldOpenInNewTab) {
 						window.open(this.$router.resolve(route)
 							.href, '_blank');
