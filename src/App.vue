@@ -90,10 +90,12 @@
 		provide() {
 			return {
 				setPath(path, id) {
-					console.log('Setting path', path, id);
-					this.currentPath = path;
-					this.currentPathId = id;
-					this.setPath(path, id);
+					console.log('Setting path', path, id, this.currentPathId);
+					if (this.currentPathId !== id) {
+						this.currentPath = path;
+						this.currentPathId = id;
+						this.setPath(path, id);
+					}
 				},
 				open: computed(() => this.show),
 				forceOpenProvider: computed(() => this.forceOpen || this.forceOpenProvider),
@@ -837,6 +839,7 @@
 		},
 		watch: {
 			pathId(id) {
+				console.log('pathid changed', id, this.title);
 				if (this.currentPathId !== id && this.show) {
 					console.log(this.currentPathId, 'is not', id);
 					this.show = false;
