@@ -91,7 +91,6 @@
 			const self = this;
 			return {
 				setPath(path, id) {
-					console.log('trying to set', id);
 					if (self.currentPathId !== id) {
 						self.currentPath = path;
 						self.currentPathId = id;
@@ -841,7 +840,7 @@
 		},
 		watch: {
 			pathId(id) {
-				console.log(this.title, 'something happened', id);
+				console.log(this.title, 'something happened', id, this.currentPathId);
 				if (this.currentPathId !== id && this.show) {
 					this.show = false;
 				}
