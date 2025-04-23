@@ -614,7 +614,7 @@
 			document.addEventListener('click', this.handleClickOutside);
 			console.log('check', this.$vertical, this.pathId, this.route, this.$route?.path, this.show);
 			if (this.$vertical && !this.pathId && this.route && this.$route?.path === this.route && !this.show) {
-				this.toggle();
+				this.toggle(true);
 			}
 		},
 		beforeUnmount() {
@@ -838,15 +838,20 @@
 		},
 		watch: {
 			pathId(id) {
+				console.log(this.title, 'something happened', id);
 				if (this.currentPathId !== id && this.show) {
 					this.show = false;
 				}
 			}
 		},
 		methods: {
-			toggle() {
-				console.log('toggling...');
-				this.show = !this.show;
+			toggle(forceOpen = false) {
+				console.log('toggling...', forceOpen);
+				if (forceOpen) {
+					this.show = true;
+				} else {
+					this.show = !this.show;
+				}
 				if (this.show) {
 					this.currentPath = this.route;
 					this.currentPathId = [...Array(8)].map(() => Math.random()
