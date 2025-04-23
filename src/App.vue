@@ -613,7 +613,7 @@
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
-			if (this.$vertical && !this.pathId && this.route && this.$route?.path === this.route && !this.show) {
+			if (this.$vertical && this.route && this.$route?.path === this.route && !this.show) {
 				this.toggle(true);
 			}
 		},
