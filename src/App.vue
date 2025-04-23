@@ -88,12 +88,14 @@
 	export default {
 		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'model'],
 		provide() {
+			const self = this;
 			return {
 				setPath(path, id) {
-					if (this.currentPathId !== id) {
-						this.currentPath = path;
-						this.currentPathId = id;
-						this.setPath(path, id);
+					console.log('trying to set', id);
+					if (self.currentPathId !== id) {
+						self.currentPath = path;
+						self.currentPathId = id;
+						self.setPath(path, id);
 					}
 				},
 				open: computed(() => this.show),
