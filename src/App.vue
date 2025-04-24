@@ -711,8 +711,8 @@
 			},
 			style() {
 				this.childModel = {
-					verticalLeftIndent: this.model?.verticalLeftIndent,
-					verticalRightIndent: this.model?.verticalRightIndent
+					verticalLeftIndent: this.verticalLeftIndent || this.model?.verticalLeftIndent,
+					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
 				};
 				const style = {};
 				const props = ['fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
