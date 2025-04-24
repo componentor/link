@@ -654,12 +654,10 @@
 				return !this.horizontal || this.small;
 			},
 			$verticalLeftIndent() {
-				console.log('left', this.title, this.$vertical, this.level, this.verticalLeftIndent, this.model);
 				if (!this.$vertical || !this.level || !this.verticalLeftIndent && !this.model?.verticalLeftIndent) return undefined;
 				return `calc(${this.verticalLeftIndent || this.model.verticalLeftIndent} * ${this.level})`;
 			},
 			$verticalRightIndent() {
-				console.log('right', this.title, this.$vertical, this.level, this.verticalLeftIndent, this.model);
 				if (!this.$vertical || !this.level || !this.verticalRightIndent && !this.model?.verticalRightIndent) return undefined;
 				return `calc(${this.verticalRightIndent || this.model.verticalRightIndent} * ${this.level})`;
 			},
