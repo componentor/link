@@ -40,6 +40,10 @@
 			:to="route || ''"
 			:href="route || ''"
 			:target="target"
+			:style="{
+				marginLeft: $verticalLeftIndent,
+				marginRight: $verticalRightIndent
+			}"
 			style="white-space: nowrap;display:inline-flex;align-items:center;flex-grow:1"
 		>
 			{{ title }}
@@ -180,6 +184,18 @@
 				default: '',
 				unit: 'px',
 				control: 'slider'
+			},
+			verticalLeftIndent: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px'
+			},
+			verticalRightIndent: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px'
 			},
 			iconReverse: {
 				type: String,
@@ -637,6 +653,14 @@
 			$vertical() {
 				return !this.horizontal || this.small;
 			},
+			$verticalLeftIndent() {
+				if (!this.$vertical || !this.level || !this.verticalLeftIndent && !this.model?.verticalLeftIndent) return undefined;
+				return `calc(${this.verticalLeftIndent || this.model.verticalLeftIndent} * ${this.level})`;
+			},
+			$verticalRightIndent() {
+				if (!this.$vertical || !this.level || !this.verticalRightIndent && !this.model?.verticalRightIndent) return undefined;
+				return `calc(${this.verticalRightIndent || this.model.verticalRightIndent} * ${this.level})`;
+			},
 			$iconSize() {
 				if (this.iconSize) return this.iconSize;
 				if (this.childrenIconSizeProvider) return this.childrenIconSizeProvider;
@@ -684,7 +708,10 @@
 				return rootClass;
 			},
 			style() {
-				this.childModel = {};
+				this.childModel = {
+					verticalLeftIndent: this.model?.verticalLeftIndent,
+					verticalRightIndent: this.model?.verticalRightIndent
+				};
 				const style = {};
 				const props = ['fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
@@ -765,7 +792,14 @@
 				}
 				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
 				if (style['backgroundColorDrop'] && !style['backgroundColor']?.includes('!important')) {
-					if (this.level >= 1 || this.forceOpen || this.forceOpenProvider || this.small) {
+					let fill = false;
+					if (this.level < 1 && (this.forceOpen || this.forceOpenProvider || this.small)) {
+						const bg = style['backgroundColor'];
+						const isTransparent = !bg || bg === 'transparent' || /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)$/i.test(bg) || /^hsla?\(\s*\d+\s*,\s*[\d.]+%\s*,\s*[\d.]+%\s*,\s*0\s*\)$/i.test(bg) || /^#(?:[0-9a-f]{2}){3}00$/i.test(bg) || /^#(?:[0-9a-f]{4}|[0-9a-f]{8})$/i.test(bg) && bg.slice(-2)
+							.toLowerCase() === '00';
+						fill = isTransparent;
+					}
+					if (this.level >= 1 || fill) {
 						style['backgroundColor'] = style['backgroundColorDrop'];
 					}
 					delete style['backgroundColorDrop'];
