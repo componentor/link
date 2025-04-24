@@ -46,7 +46,7 @@
 		</component>
 		<div
 			v-if="$slots.default"
-			@click.stop="show=!show"
+			@click.stop="toggle()"
 			class="vp-navigator-item--link vp-navigator-item--arrow"
 			style="display:inline-flex;align-items:center"
 		>
