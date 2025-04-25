@@ -274,6 +274,22 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			border: {
+				type: String,
+				default: '',
+				control: 'color',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			borderColor: {
+				type: String,
+				default: '',
+				control: 'color',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			borderTopColor: {
 				type: String,
 				default: '',
@@ -302,6 +318,15 @@
 				type: String,
 				default: '',
 				control: 'color',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			borderWidth: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
 				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
@@ -343,6 +368,47 @@
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
 			borderTopStyle: {
+				type: String,
+				default: '',
+				options: [{
+					value: '',
+					key: 'Clear'
+				}, {
+					value: 'none',
+					key: 'none'
+				}, {
+					value: 'hidden',
+					key: 'hidden'
+				}, {
+					value: 'solid',
+					key: 'solid'
+				}, {
+					value: 'dashed',
+					key: 'dashed'
+				}, {
+					value: 'dotted',
+					key: 'dotted'
+				}, {
+					value: 'double',
+					key: 'double'
+				}, {
+					value: 'groove',
+					key: 'groove'
+				}, {
+					value: 'ridge',
+					key: 'ridge'
+				}, {
+					value: 'inset',
+					key: 'inset'
+				}, {
+					value: 'outset',
+					key: 'outset'
+				}],
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			borderStyle: {
 				type: String,
 				default: '',
 				options: [{
@@ -506,6 +572,15 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			borderRadius: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			borderTopLeftRadius: {
 				type: String,
 				default: '',
@@ -542,6 +617,15 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			padding: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			paddingTop: {
 				type: String,
 				default: '',
@@ -570,6 +654,15 @@
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
 			paddingLeft: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			margin: {
 				type: String,
 				default: '',
 				control: 'slider',
@@ -713,7 +806,7 @@
 					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
 				};
 				const style = {};
-				const props = ['fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
+				const props = ['fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
 				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 				const themes = ['light', 'dark'];
