@@ -984,7 +984,9 @@
 					this.currentPathId = [...Array(8)].map(() => Math.random()
 							.toString(36)[2])
 						.join('');
-					this.setPath(this.currentPath, this.currentPathId);
+					if (typeof this.setPath === 'function') {
+						this.setPath(this.currentPath, this.currentPathId);
+					}
 				}
 			},
 			handleClickOutside(event) {
