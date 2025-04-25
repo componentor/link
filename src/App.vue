@@ -735,6 +735,7 @@
 			current() {
 				let route = this.route?.replace(/^\/|\/$/g, '');
 				let path = this.$route?.path?.replace(/^\/|\/$/g, '');
+				if (typeof this.setPath === undefined) return false;
 				if (!route && this.$slots.default) return false;
 				return route && route === path || !route && this.$route?.path === '/' || route === '/' && !this.$route?.path;
 			},
