@@ -98,7 +98,9 @@
 					if (self.currentPathId !== id) {
 						self.currentPath = path;
 						self.currentPathId = id;
-						self.setPath(path, id);
+						if (typeof self.setPath === 'function') {
+							self.setPath(path, id);
+						}
 					}
 				},
 				open: computed(() => this.show),
