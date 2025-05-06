@@ -20,8 +20,8 @@
 		<component
 			v-if="icon"
 			:is="external ? 'a' : 'router-link'"
-			:to="route || ''"
-			:href="route || ''"
+			:to="external ? undefined : (route || '')"
+			:href="!external ? undefined : (route || '')"
 			:target="target"
 			class="vp-navigator-item--link"
 			style="display:inline-flex;align-items:center"
@@ -37,8 +37,8 @@
 		<component
 			class="vp-navigator-item--link"
 			:is="external ? 'a' : 'router-link'"
-			:to="route || ''"
-			:href="route || ''"
+			:to="external ? undefined : (route || '')"
+			:href="!external ? undefined : (route || '')"
 			:target="target"
 			:style="{
 				marginLeft: $verticalLeftIndent,
