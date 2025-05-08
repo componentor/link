@@ -2,7 +2,7 @@
 	<Box
 		v-bind="$attrs"
 		:class="rootClass"
-		:expand="expand ? '{`default`:{`xs`:{`light`:true}}}' : ''"
+		:expand="expand ? expandData : ''"
 		:style="style"
 		:title="route"
 		ref="navitem"
@@ -720,7 +720,8 @@
 			childModel: {},
 			hover: false,
 			active: false,
-			focus: false
+			focus: false,
+			expandData: '{`default`:{`xs`:{`light`:true}}}'
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
