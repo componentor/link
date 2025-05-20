@@ -42,7 +42,8 @@
 			:target="target"
 			:style="{
 				marginLeft: $verticalLeftIndent,
-				marginRight: $verticalRightIndent
+				marginRight: $verticalRightIndent,
+				justifyContent: justifyContent,
 			}"
 			style="white-space: nowrap;display:inline-flex;align-items:center;flex-grow:1"
 		>
