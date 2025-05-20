@@ -43,7 +43,7 @@
 			:style="{
 				marginLeft: $verticalLeftIndent,
 				marginRight: $verticalRightIndent,
-				justifyContent: justifyContent,
+				justifyContent: style.justifyContent,
 			}"
 			style="white-space: nowrap;display:inline-flex;align-items:center;flex-grow:1"
 		>
@@ -709,6 +709,68 @@
 				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			justifyContent: {
+				type: String,
+				default: '',
+				options: [{
+					value: '',
+					key: 'Clear'
+				}, {
+					value: 'flex-start',
+					key: 'flex-start'
+				}, {
+					value: 'flex-end',
+					key: 'flex-end'
+				}, {
+					value: 'center',
+					key: 'center'
+				}, {
+					value: 'space-between',
+					key: 'space-between'
+				}, {
+					value: 'space-around',
+					key: 'space-around'
+				}, {
+					value: 'space-evenly',
+					key: 'space-evenly'
+				}, {
+					value: 'stretch',
+					key: 'stretch'
+				}, {
+					value: 'normal',
+					key: 'normal'
+				}, {
+					value: 'start',
+					key: 'start'
+				}, {
+					value: 'end',
+					key: 'end'
+				}, {
+					value: 'left',
+					key: 'left'
+				}, {
+					value: 'right',
+					key: 'right'
+				}, {
+					value: 'inherit',
+					key: 'inherit'
+				}, {
+					value: 'initial',
+					key: 'initial'
+				}, {
+					value: 'revert',
+					key: 'revert'
+				}, {
+					value: 'revert-layer',
+					key: 'revert-layer'
+				}, {
+					value: 'unset',
+					key: 'unset'
+				}],
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
 			}
 		},
 		components: {
@@ -810,7 +872,7 @@
 					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
 				};
 				const style = {};
-				const props = ['fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
+				const props = ['justifyContent', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
 				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 				const themes = ['light', 'dark'];
@@ -1024,7 +1086,6 @@
 	.vp-navigator-item,
 	.vp-box.vp-navigator-item {
 		display: flex;
-		position: relative;
 		overflow: visible;
 		padding: 0;
 		cursor: pointer;
