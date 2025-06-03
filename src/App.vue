@@ -996,7 +996,7 @@
 						this.childModel[prop] = merge;
 						style[prop] = this.childModel[prop]?.['default']?.['xs']?.['light'];
 						let limitReached = false;
-						let limit = this.breakpoint || 'xs';
+						let limit = this.breakpoint || '2xl';
 						let match = false;
 						for (const breakpoint of breakpoints) {
 							if (!limitReached) {
@@ -1019,7 +1019,7 @@
 						}
 						if (!match && this.group !== 'default') {
 							limitReached = false;
-							limit = this.breakpoint || 'xs';
+							limit = this.breakpoint || '2xl';
 							for (const breakpoint of breakpoints) {
 								if (!limitReached) {
 									const firstPriority = this.childModel[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString();
