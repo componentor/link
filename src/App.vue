@@ -7,7 +7,7 @@
 		:title="route"
 		ref="navitem"
 		class="vp-navigator-item"
-		@click.stop="($event.pointerType !== 'mouse' || $vertical) && $slots.default && !route ? toggle() : go($event, route, external, target)"
+		@click.stop="!tag ? ($event.pointerType !== 'mouse' || $vertical) && $slots.default && !route ? toggle() : go($event, route, external, target) : ''"
 		@pointerover="$event.pointerType !== 'mouse' || $vertical ? '' : show=true"
 		@pointerover.stop="hover=true"
 		@pointerleave="$event.pointerType !== 'mouse' || $vertical ? '' : show=false"
@@ -19,10 +19,11 @@
 	>
 		<component
 			v-if="icon"
-			:is="external ? 'a' : 'router-link'"
+			:is="tag || (external ? 'a' : 'router-link')"
 			:to="external ? undefined : (route || '')"
 			:href="!external ? undefined : (route || '')"
 			:target="target"
+			@click="$emit('click', $event)"
 			class="vp-navigator-item--link"
 			style="display:inline-flex;align-items:center"
 		>
@@ -36,10 +37,11 @@
 		</component>
 		<component
 			class="vp-navigator-item--link"
-			:is="external ? 'a' : 'router-link'"
+			:is="tag || (external ? 'a' : 'router-link')"
 			:to="external ? undefined : (route || '')"
 			:href="!external ? undefined : (route || '')"
 			:target="target"
+			@click="$emit('click', $event)"
 			:style="{
 				marginLeft: $verticalLeftIndent,
 				marginRight: $verticalRightIndent,
@@ -128,6 +130,10 @@
 			external: {
 				type: Boolean,
 				default: false
+			},
+			tag: {
+				type: String,
+				default: ''
 			},
 			target: {
 				type: String,
