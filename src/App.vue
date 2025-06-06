@@ -894,7 +894,8 @@
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
-			if (this.$vertical && this.route && this.$route?.path === this.route && !this.show) {
+			if (this.$vertical && this.route && (this.$route?.path === this.route || this.$route?.path.startsWith((this.route + '/')
+					.replace('//', '/'))) && !this.show) {
 				this.toggle(true);
 			}
 		},
