@@ -904,14 +904,13 @@
 		},
 		computed: {
 			current() {
-				return this.pathId && this.currentPathId === this.pathId || false;
-				/*let route = this.route?.replace(/^\/|\/$/g, '');
+				let route = this.route?.replace(/^\/|\/$/g, '');
 				let path = this.$route?.path?.replace(/^\/|\/$/g, '');
 				if (typeof this.setPath === 'undefined') return false;
 				if (!route && this.$slots.default) return false;
 				if (route && path.startsWith((route + '/')
 						.replace('//', '/'))) return true;
-				return route && route === path || !route && this.$route?.path === '/' || route === '/' && !this.$route?.path;*/
+				return route && route === path || !route && this.$route?.path === '/' || route === '/' && !this.$route?.path;
 			},
 			group() {
 				if (this.current) return 'current';
