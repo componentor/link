@@ -878,6 +878,35 @@
 				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover']
+			},
+			filter: {
+				type: String,
+				default: '',
+				control: 'slider',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover'],
+				sizer: true
+			},
+			zoom: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: '%',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover'],
+				sizer: true
+			},
+			transform: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: '%',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover'],
+				sizer: true
 			}
 		},
 		components: {
@@ -982,7 +1011,7 @@
 					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
 				};
 				const style = {};
-				const props = ['position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft'];
+				const props = ['position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'filter', 'zoom', 'transform'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
 				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 				const themes = ['light', 'dark'];
