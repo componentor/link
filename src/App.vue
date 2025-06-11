@@ -1102,6 +1102,7 @@
 					}
 					delete style['backgroundColorDrop'];
 				}
+				console.log('style', style);
 				return style;
 			},
 			$style() {
