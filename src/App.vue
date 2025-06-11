@@ -1102,7 +1102,9 @@
 					}
 					delete style['backgroundColorDrop'];
 				}
-				console.log('style', style);
+				if (style?.['filter']?.includes('!important')) {
+					style['filter'] = style['filter'].replace('!important', '');
+				}
 				return style;
 			},
 			$style() {
