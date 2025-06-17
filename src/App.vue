@@ -23,7 +23,6 @@
 			:to="external ? undefined : (route || '')"
 			:href="!external ? undefined : (route || '')"
 			:target="target"
-			@click="$emit('click', $event)"
 			class="vp-navigator-item--link"
 			style="display:inline-flex;align-items:center"
 		>
@@ -41,7 +40,6 @@
 			:to="external ? undefined : (route || '')"
 			:href="!external ? undefined : (route || '')"
 			:target="target"
-			@click="$emit('click', $event)"
 			:style="{
 				marginLeft: $verticalLeftIndent,
 				marginRight: $verticalRightIndent,
