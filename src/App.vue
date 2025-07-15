@@ -1012,7 +1012,7 @@
 				const props = ['filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
 				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
-				const themes = ['light', 'dark'];
+				const themes = [this.theme || 'light', ...['light', 'dark'].filter(t => t !== (this.theme || 'light'))];
 				for (let prop of props) {
 					let priority = {};
 					if (this[prop]) {
@@ -1038,52 +1038,44 @@
 					}
 					const groups = Object.keys(merge);
 					if (groups.length) {
-						this.childModel[prop] = merge;
-						style[prop] = this.childModel[prop]?.['default']?.['xs']?.['light'];
-						let limitReached = false;
+						for (const theme of themes) {
+							style[prop] = merge?.['default']?.['xs']?.[theme];
+							if (typeof style[prop] !== 'undefined' && style[prop] !== null && style[prop] !== '') {
+								break;
+							}
+						}
 						let limit = this.breakpoint || '2xl';
 						let match = false;
 						for (const breakpoint of breakpoints) {
-							if (!limitReached) {
-								const firstPriority = this.childModel[prop]?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString();
-								const secondPriority = this.childModel[prop]?.[this.group]?.[breakpoint]?.['light']?.toString();
-								const value = firstPriority || secondPriority;
-								if (value) {
-									let important = false;
-									if (value === firstPriority) {
-										important = priority?.[this.group]?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
-									} else {
-										important = priority?.[this.group]?.[breakpoint]?.['light']?.toString() === value;
-									}
+							for (const theme of themes) {
+								let value = merge?.[this.group]?.[breakpoint]?.[theme]?.toString();
+								if (typeof value !== 'undefined' && value !== null && value !== '') {
+									let important = priority?.[this.group]?.[breakpoint]?.[theme]?.toString() === value;
+									match = true;
 									style[prop] = value + (important ? '!important' : '');
 									style[prop] = style[prop].replace('!important!important', '!important');
-									match = true;
+									break;
 								}
-								limitReached = breakpoint === limit;
 							}
+							if (breakpoint === limit) break;
 						}
 						if (!match && this.group !== 'default') {
-							limitReached = false;
 							limit = this.breakpoint || '2xl';
 							for (const breakpoint of breakpoints) {
-								if (!limitReached) {
-									const firstPriority = this.childModel[prop]?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString();
-									const secondPriority = this.childModel[prop]?.['default']?.[breakpoint]?.['light']?.toString();
-									const value = firstPriority || secondPriority;
-									if (value) {
-										let important = false;
-										if (value === firstPriority) {
-											important = priority?.['default']?.[breakpoint]?.[this.theme || 'light']?.toString() === value;
-										} else {
-											important = priority?.['default']?.[breakpoint]?.['light']?.toString() === value;
-										}
+								for (const theme of themes) {
+									let value = merge?.['default']?.[breakpoint]?.[theme]?.toString();
+									if (typeof value !== 'undefined' && value !== null && value !== '') {
+										let important = priority?.['default']?.[breakpoint]?.[theme]?.toString() === value;
+										match = true;
 										style[prop] = value + (important ? '!important' : '');
 										style[prop] = style[prop].replace('!important!important', '!important');
+										break;
 									}
-									limitReached = breakpoint === limit;
 								}
+								if (breakpoint === limit) break;
 							}
 						}
+						this.childModel[prop] = merge;
 					}
 				}
 				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
