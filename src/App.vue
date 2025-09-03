@@ -91,7 +91,7 @@
 	} from 'vue';
 	import Box from '@vueplayio/box';
 	export default {
-		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'model'],
+		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'childrenBorderRadiusProvider', 'model'],
 		provide() {
 			const self = this;
 			return {
@@ -112,6 +112,7 @@
 				childrenIconSizeProvider: computed(() => this.childrenIconSize || this.childrenIconSizeProvider),
 				childrenCaretProvider: computed(() => this.childrenCaret || this.childrenCaretProvider),
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
+				childrenBorderRadiusProvider: computed(() => this.childrenBorderRadius || this.childrenBorderRadiusProvider),
 				direction: computed(() => this.itemDirection ? this.itemDirection : this.direction),
 				model: computed(() => this.childModel)
 			};
@@ -642,6 +643,15 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			childrenBorderRadius: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			borderRadius: {
 				type: String,
 				default: '',
@@ -983,6 +993,11 @@
 				if (this.childrenCaretSizeProvider) return this.childrenCaretSizeProvider;
 				return '20px';
 			},
+			$borderRadius() {
+				if (this.borderRadius) return this.borderRadius;
+				if (this.childrenBorderRadiusProvider) return this.childrenBorderRadiusProvider;
+				return '20px';
+			},
 			horizontal() {
 				return this.orientation === 'Row';
 			},
@@ -1009,7 +1024,7 @@
 					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
 				};
 				const style = {};
-				const props = ['filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
+				const props = ['filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', '$borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
 				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 				const themes = [this.theme || 'light', ...['light', 'dark'].filter(t => t !== (this.theme || 'light'))];
@@ -1095,6 +1110,10 @@
 				if (style?.['filter']?.includes('!important')) {
 					style['filter'] = style['filter'].replace('!important', '');
 				}
+				if (style?.$borderRadius) {
+					style.borderRadius = style.$borderRadius;
+				}
+				delete style.$borderRadius;
 				return style;
 			},
 			$style() {
