@@ -70,7 +70,8 @@
 				}"
 				:style="{
 					'z-index': level ? level + 1 : 1,
-					backgroundColor: style.backgroundColor
+					backgroundColor: style.backgroundColor,
+					...wrapperStyle
 				}"
 			>
 				<slot />
@@ -85,7 +86,8 @@
 			}"
 			:style="{
 				'z-index': level ? level + 1 : 1,
-				backgroundColor: style.backgroundColor
+				backgroundColor: style.backgroundColor,
+				...wrapperStyle
 			}"
 		>
 			<slot />
@@ -98,7 +100,7 @@
 	} from 'vue';
 	import Box from '@vueplayio/box';
 	export default {
-		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'childrenBorderRadiusProvider', 'model'],
+		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'childrenBorderRadiusProvider', 'childrenBorderRadiusDropProvider', 'childrenGapProvider', 'model'],
 		provide() {
 			const self = this;
 			return {
@@ -120,6 +122,8 @@
 				childrenCaretProvider: computed(() => this.childrenCaret || this.childrenCaretProvider),
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
 				childrenBorderRadiusProvider: computed(() => this.childrenBorderRadius || this.childrenBorderRadiusProvider),
+				childrenBorderRadiusDropProvider: computed(() => this.childrenBorderRadiusDrop || this.childrenBorderRadiusDropProvider),
+				childrenGapProvider: computed(() => this.childrenGap || this.childrenGapProvider),
 				direction: computed(() => this.itemDirection ? this.itemDirection : this.direction),
 				model: computed(() => this.childModel)
 			};
@@ -290,6 +294,15 @@
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
 			gap: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			childrenGap: {
 				type: String,
 				default: '',
 				control: 'slider',
@@ -659,6 +672,15 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			childrenBorderRadiusDrop: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			borderRadius: {
 				type: String,
 				default: '',
@@ -934,7 +956,8 @@
 			childModel: {},
 			hover: false,
 			active: false,
-			focus: false
+			focus: false,
+			wrapperStyle: {}
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
@@ -1005,6 +1028,16 @@
 				if (this.childrenBorderRadiusProvider) return this.childrenBorderRadiusProvider;
 				return '20px';
 			},
+			$borderRadiusDrop() {
+				if (this.borderRadiusDrop) return this.borderRadiusDrop;
+				if (this.childrenBorderRadiusDropProvider) return this.childrenBorderRadiusDropProvider;
+				return '20px';
+			},
+			$childrenGap() {
+				if (this.childrenGap) return this.childrenGap;
+				if (this.childrenGapProvider) return this.childrenGapProvider;
+				return '20px';
+			},
 			horizontal() {
 				return this.orientation === 'Row';
 			},
@@ -1031,7 +1064,7 @@
 					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
 				};
 				const style = {};
-				const props = ['filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', '$borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
+				const props = ['$borderRadiusDrop', '$childrenGap', 'filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', '$borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
 				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 				const themes = [this.theme || 'light', ...['light', 'dark'].filter(t => t !== (this.theme || 'light'))];
@@ -1120,7 +1153,15 @@
 				if (style?.$borderRadius) {
 					style.borderRadius = style.$borderRadius;
 				}
+				if (style?.$borderRadiusDrop) {
+					this.wrapperStyle.borderRadius = style.$borderRadiusDrop;
+				}
+				if (style?.$childrenGap) {
+					this.wrapperStyle.borderRgapadius = style.$childrenGap;
+				}
 				delete style.$borderRadius;
+				delete style.$borderRadiusDrop;
+				delete style.$childrenGap;
 				return style;
 			},
 			$style() {
