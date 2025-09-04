@@ -71,7 +71,6 @@
 				}"
 				:style="{
 					'z-index': level ? level + 1 : 1,
-					backgroundColor: small ? undefined : style.backgroundColor,
 					...wrapperStyle
 				}"
 			>
@@ -88,7 +87,6 @@
 			}"
 			:style="{
 				'z-index': level ? level + 1 : 1,
-				backgroundColor: small ? undefined : style.backgroundColor,
 				...wrapperStyle
 			}"
 		>
@@ -102,7 +100,7 @@
 	} from 'vue';
 	import Box from '@vueplayio/box';
 	export default {
-		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'center', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'borderRadiusDropProvider', 'model'],
+		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'center', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'borderRadiusDropProvider', 'backgroundDropAreaProvider', 'model'],
 		provide() {
 			const self = this;
 			return {
@@ -124,6 +122,7 @@
 				childrenCaretProvider: computed(() => this.childrenCaret || this.childrenCaretProvider),
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
 				borderRadiusDropProvider: computed(() => this.borderRadiusDrop || this.borderRadiusDropProvider),
+				backgroundDropAreaProvider: computed(() => this.backgroundDropArea || this.backgroundDropAreaProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
 				center: computed(() => this.childrenCenterDropdown ? this.childrenCenterDropdown : this.centerDropdown ? this.centerDropdown : this.center),
 				model: computed(() => {
@@ -442,6 +441,14 @@
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
 			childrenColor: {
+				type: String,
+				default: '',
+				control: 'color',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			backgroundDropArea: {
 				type: String,
 				default: '',
 				control: 'color',
@@ -1200,7 +1207,8 @@
 			active: false,
 			focus: false,
 			wrapperStyle: {
-				borderRadius: undefined
+				borderRadius: undefined,
+				background: undefined
 			}
 		}),
 		mounted() {
@@ -1272,6 +1280,11 @@
 				if (this.borderRadiusDropProvider) return this.borderRadiusDropProvider;
 				return '';
 			},
+			$backgroundDropArea() {
+				if (this.backgroundDropArea) return this.backgroundDropArea;
+				if (this.backgroundDropAreaProvider) return this.backgroundDropAreaProvider;
+				return '';
+			},
 			horizontal() {
 				return this.orientation === 'Row';
 			},
@@ -1299,7 +1312,7 @@
 					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
 				};
 				const style = {};
-				const props = ['$borderRadiusDrop', 'filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
+				const props = ['$borderRadiusDrop', '$backgroundDropArea', 'filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
 				const groups = ['default', 'hover', 'current', 'active', 'focus'];
 				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
 				const themes = [this.theme || 'light', ...['light', 'dark'].filter(t => t !== (this.theme || 'light'))];
@@ -1388,7 +1401,13 @@
 				if (style?.$borderRadiusDrop) {
 					this.wrapperStyle.borderRadius = style.$borderRadiusDrop;
 				}
+				if (style?.$backgroundDropArea) {
+					this.wrapperStyle.background = style.$backgroundDropArea;
+				} else {
+					this.wrapperStyle.background = style.backgroundColor;
+				}
 				delete style.$borderRadiusDrop;
+				delete style.$backgroundDropArea;
 				return style;
 			},
 			$style() {
