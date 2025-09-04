@@ -125,7 +125,7 @@
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
 				borderRadiusDropProvider: computed(() => this.borderRadiusDrop || this.borderRadiusDropProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
-				center: computed(() => this.childrenItemCenter ? this.childrenItemCenter : this.itemCenter ? this.itemCenter : this.center),
+				center: computed(() => this.childrenCenterDropdown ? this.childrenCenterDropdown : this.centerDropdown ? this.centerDropdown : this.center),
 				model: computed(() => {
 					const model = this.childModel;
 					if (this.childrenBorderRadius) {
@@ -363,7 +363,7 @@
 					value: 'right'
 				}]
 			},
-			itemCenter: {
+			centerDropdown: {
 				type: String,
 				default: 'true',
 				options: [{
@@ -374,7 +374,7 @@
 					value: 'false'
 				}]
 			},
-			childrenItemCenter: {
+			childrenCenterDropdown: {
 				type: String,
 				default: 'true',
 				options: [{
@@ -1278,7 +1278,7 @@
 					'vp-navigator-item--hide': !this.show && !this.forceOpen && !this.forceOpenProvider,
 					'vp-navigator-item--direction-left': this.itemDirection ? this.itemDirection === 'left' : this.direction === 'left',
 					'vp-navigator-item--direction-right': this.itemDirection ? this.itemDirection === 'right' : this.direction === 'right',
-					'vp-navigator-item--direction-center': this.itemCenter ? this.itemCenter === 'true' : this.center === 'true',
+					'vp-navigator-item--direction-center': this.centerDropdown ? this.centerDropdown === 'true' : this.center === 'true',
 					'vp-navigator-item--drop-up': this.drop === 'up',
 					'vp-navigator-item--reverse': this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true'
 				};
