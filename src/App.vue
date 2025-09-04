@@ -1284,7 +1284,7 @@
 					'vp-navigator-item--hide': !this.show && !this.forceOpen && !this.forceOpenProvider,
 					'vp-navigator-item--direction-left': this.itemDirection ? this.itemDirection === 'left' : this.direction === 'left',
 					'vp-navigator-item--direction-right': this.itemDirection ? this.itemDirection === 'right' : this.direction === 'right',
-					'vp-navigator-item--direction-center': this.centerDropdown ? this.centerDropdown === 'true' : this.center === 'true',
+					'vp-navigator-item--center': this.centerDropdown ? this.centerDropdown === 'true' : this.center === 'true',
 					'vp-navigator-item--drop-up': this.drop === 'up',
 					'vp-navigator-item--reverse': this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true'
 				};
