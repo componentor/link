@@ -128,13 +128,18 @@
 					if (this.childrenBorderRadius) {
 						try {
 							model.borderRadius = JSON.parse(this.childrenBorderRadius);
-						} catch (e) {}
+						} catch (e) {
+							console.log(e);
+						}
 					}
 					if (this.childrenGap) {
 						try {
 							model.gap = JSON.parse(this.childrenGap);
-						} catch (e) {}
+						} catch (e) {
+							console.log(e);
+						}
 					}
+					console.log(this.childrenBorderRadius, this.childrenGap, model);
 					return model;
 				})
 			};
