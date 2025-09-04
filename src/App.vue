@@ -126,12 +126,15 @@
 				model: computed(() => {
 					const model = this.childModel;
 					if (this.childrenBorderRadius) {
-						model.borderRadius = this.childrenBorderRadius;
+						try {
+							model.borderRadius = JSON.parse(this.childrenBorderRadius);
+						} catch (e) {}
 					}
 					if (this.childrenGap) {
-						model.gap = this.childrenGap;
+						try {
+							model.gap = JSON.parse(this.childrenGap);
+						} catch (e) {}
 					}
-					console.log(this.childrenGap, model);
 					return model;
 				})
 			};
