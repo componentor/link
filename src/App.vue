@@ -62,7 +62,8 @@
 				}"
 				style="background-repeat:no-repeat;background-size:contain;background-position:center;aspect-ratio:1/1"
 			/>
-		</div> <template v-if="!$vertical && $slots.default && (show || forceOpen || forceOpenProvider)">
+		</div>
+		<template v-if="!$vertical && $slots.default && (show || forceOpen || forceOpenProvider)">
 			<div
 				class="wrapper"
 				:class="{
@@ -70,14 +71,15 @@
 				}"
 				:style="{
 					'z-index': level ? level + 1 : 1,
-					backgroundColor: style.backgroundColor,
+					backgroundColor: small ? undefined : style.backgroundColor,
 					...wrapperStyle
 				}"
 			>
 				<slot />
 			</div>
 		</template>
-	</Box> <template v-if="$vertical">
+	</Box>
+	<template v-if="$vertical">
 		<div
 			v-show="$slots.default && (show || forceOpen || forceOpenProvider)"
 			class="wrapper"
@@ -86,7 +88,7 @@
 			}"
 			:style="{
 				'z-index': level ? level + 1 : 1,
-				backgroundColor: style.backgroundColor,
+				backgroundColor: small ? undefined : style.backgroundColor,
 				...wrapperStyle
 			}"
 		>
@@ -117,12 +119,12 @@
 				forceOpenProvider: computed(() => this.forceOpen || this.forceOpenProvider),
 				level: computed(() => this.level ? this.level + 1 : 1),
 				order: computed(() => this.order === 'odd' ? 'even' : 'odd'),
-				reverseIcon: computed(() => this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true'),
+				reverseIcon: computed(() => !this.iconReverse && !this.childrenIconReverse ? this.reverseIcon : this.childrenIconReverse ? this.childrenIconReverse === 'true' : this.iconReverse === 'true'),
 				childrenIconSizeProvider: computed(() => this.childrenIconSize || this.childrenIconSizeProvider),
 				childrenCaretProvider: computed(() => this.childrenCaret || this.childrenCaretProvider),
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
 				borderRadiusDropProvider: computed(() => this.borderRadiusDrop || this.borderRadiusDropProvider),
-				direction: computed(() => this.itemDirection ? this.itemDirection : this.direction),
+				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
 				model: computed(() => {
 					const model = this.childModel;
 					if (this.childrenBorderRadius) {
@@ -133,6 +135,71 @@
 					if (this.childrenGap) {
 						try {
 							model.gap = JSON.parse(this.childrenGap.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenVerticalLeftIndent) {
+						try {
+							model.verticalLeftIndent = JSON.parse(this.childrenVerticalLeftIndent.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenVerticalRightIndent) {
+						try {
+							model.verticalRightIndent = JSON.parse(this.childrenVerticalRightIndent.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenFontSize) {
+						try {
+							model.fontSize = JSON.parse(this.childrenFontSize.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenFontWeight) {
+						try {
+							model.fontWeight = JSON.parse(this.childrenFontWeight.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenColor) {
+						try {
+							model.color = JSON.parse(this.childrenColor.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenBackgroundColor) {
+						try {
+							model.backgroundColor = JSON.parse(this.childrenBackgroundColor.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenBackgroundImage) {
+						try {
+							model.backgroundImage = JSON.parse(this.childrenBackgroundImage.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenBorder) {
+						try {
+							model.border = JSON.parse(this.childrenBorder.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenMargin) {
+						try {
+							model.margin = JSON.parse(this.childrenMargin.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenPadding) {
+						try {
+							model.padding = JSON.parse(this.childrenPadding.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenTransform) {
+						try {
+							model.transform = JSON.parse(this.childrenTransform.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenWidth) {
+						try {
+							model.width = JSON.parse(this.childrenWidth.replaceAll('`', '"'));
+						} catch (e) {}
+					}
+					if (this.childrenHeight) {
+						try {
+							model.height = JSON.parse(this.childrenHeight.replaceAll('`', '"'));
 						} catch (e) {}
 					}
 					return model;
@@ -199,15 +266,15 @@
 				control: 'media',
 				default: ''
 			},
-			caretSize: {
-				type: String,
-				default: '',
-				control: 'slider'
-			},
 			childrenCaret: {
 				type: String,
 				control: 'media',
 				default: ''
+			},
+			caretSize: {
+				type: String,
+				default: '',
+				control: 'slider'
 			},
 			childrenCaretSize: {
 				type: String,
@@ -221,7 +288,19 @@
 				control: 'slider',
 				unit: 'px'
 			},
+			childrenVerticalLeftIndent: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px'
+			},
 			verticalRightIndent: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px'
+			},
+			childrenVerticalRightIndent: {
 				type: String,
 				default: '',
 				control: 'slider',
@@ -241,7 +320,35 @@
 					value: 'false'
 				}]
 			},
+			childrenIconReverse: {
+				type: String,
+				default: '',
+				options: [{
+					key: 'Default',
+					value: ''
+				}, {
+					key: 'Yes',
+					value: 'true'
+				}, {
+					key: 'No',
+					value: 'false'
+				}]
+			},
 			itemDirection: {
+				type: String,
+				default: '',
+				options: [{
+					key: 'Default',
+					value: ''
+				}, {
+					key: 'Left',
+					value: 'left'
+				}, {
+					key: 'Right',
+					value: 'right'
+				}]
+			},
+			childrenItemDirection: {
 				type: String,
 				default: '',
 				options: [{
@@ -272,7 +379,24 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			childrenFontSize: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			fontWeight: {
+				type: String,
+				default: '',
+				control: 'slider',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			childrenFontWeight: {
 				type: String,
 				default: '',
 				control: 'slider',
@@ -288,6 +412,14 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			childrenColor: {
+				type: String,
+				default: '',
+				control: 'color',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			backgroundColor: {
 				type: String,
 				default: '',
@@ -296,7 +428,23 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			childrenBackgroundColor: {
+				type: String,
+				default: '',
+				control: 'color',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			backgroundImage: {
+				type: String,
+				default: '',
+				control: 'media',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			childrenBackgroundImage: {
 				type: String,
 				default: '',
 				control: 'media',
@@ -323,6 +471,15 @@
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
 			width: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			childrenWidth: {
 				type: String,
 				default: '',
 				control: 'slider',
@@ -358,6 +515,15 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			childrenHeight: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			minHeight: {
 				type: String,
 				default: '',
@@ -377,6 +543,14 @@
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
 			border: {
+				type: String,
+				default: '',
+				control: 'color',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			childrenBorder: {
 				type: String,
 				default: '',
 				control: 'color',
@@ -746,6 +920,15 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			childrenPadding: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			paddingTop: {
 				type: String,
 				default: '',
@@ -783,6 +966,15 @@
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
 			margin: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: 'px',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
+			childrenMargin: {
 				type: String,
 				default: '',
 				control: 'slider',
@@ -947,6 +1139,16 @@
 				sizer: true
 			},
 			transform: {
+				type: String,
+				default: '',
+				control: 'slider',
+				unit: '%',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover'],
+				sizer: true
+			},
+			childrenTransform: {
 				type: String,
 				default: '',
 				control: 'slider',
