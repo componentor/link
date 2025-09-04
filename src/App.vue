@@ -127,19 +127,14 @@
 					const model = this.childModel;
 					if (this.childrenBorderRadius) {
 						try {
-							model.borderRadius = JSON.parse(this.childrenBorderRadius);
-						} catch (e) {
-							console.log(e);
-						}
+							model.borderRadius = JSON.parse(this.childrenBorderRadius.replaceAll('`', '"'));
+						} catch (e) {}
 					}
 					if (this.childrenGap) {
 						try {
-							model.gap = JSON.parse(this.childrenGap);
-						} catch (e) {
-							console.log(e);
-						}
+							model.gap = JSON.parse(this.childrenGap.replaceAll('`', '"'));
+						} catch (e) {}
 					}
-					console.log(this.childrenBorderRadius, this.childrenGap, model);
 					return model;
 				})
 			};
