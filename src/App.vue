@@ -131,6 +131,7 @@
 					if (this.childrenGap) {
 						model.gap = this.childrenGap;
 					}
+					console.log(this.childrenGap, model);
 					return model;
 				})
 			};
@@ -1035,7 +1036,7 @@
 			$borderRadiusDrop() {
 				if (this.borderRadiusDrop) return this.borderRadiusDrop;
 				if (this.borderRadiusDropProvider) return this.borderRadiusDropProvider;
-				return '20px';
+				return '';
 			},
 			horizontal() {
 				return this.orientation === 'Row';
@@ -1149,10 +1150,8 @@
 				if (style?.['filter']?.includes('!important')) {
 					style['filter'] = style['filter'].replace('!important', '');
 				}
-				if (this.$borderRadiusDrop) console.log('->', this.$borderRadiusDrop);
 				if (style?.$borderRadiusDrop) {
 					this.wrapperStyle.borderRadius = style.$borderRadiusDrop;
-					console.log('hit', style.$borderRadiusDrop);
 				}
 				delete style.$borderRadiusDrop;
 				return style;
