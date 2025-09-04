@@ -102,7 +102,7 @@
 	} from 'vue';
 	import Box from '@vueplayio/box';
 	export default {
-		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'borderRadiusDropProvider', 'model'],
+		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'center', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'borderRadiusDropProvider', 'model'],
 		provide() {
 			const self = this;
 			return {
@@ -125,6 +125,7 @@
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
 				borderRadiusDropProvider: computed(() => this.borderRadiusDrop || this.borderRadiusDropProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
+				center: computed(() => this.childrenItemCenter ? this.childrenItemCenter : this.itemCenter ? this.itemCenter : this.center),
 				model: computed(() => {
 					const model = this.childModel;
 					if (this.childrenBorderRadius) {
@@ -360,6 +361,28 @@
 				}, {
 					key: 'Right',
 					value: 'right'
+				}]
+			},
+			itemCenter: {
+				type: String,
+				default: 'true',
+				options: [{
+					key: 'Yes',
+					value: 'true'
+				}, {
+					key: 'No',
+					value: 'false'
+				}]
+			},
+			childrenItemCenter: {
+				type: String,
+				default: 'true',
+				options: [{
+					key: 'Yes',
+					value: 'true'
+				}, {
+					key: 'No',
+					value: 'false'
 				}]
 			},
 			expand: {
@@ -1255,6 +1278,7 @@
 					'vp-navigator-item--hide': !this.show && !this.forceOpen && !this.forceOpenProvider,
 					'vp-navigator-item--direction-left': this.itemDirection ? this.itemDirection === 'left' : this.direction === 'left',
 					'vp-navigator-item--direction-right': this.itemDirection ? this.itemDirection === 'right' : this.direction === 'right',
+					'vp-navigator-item--direction-center': this.itemCenter ? this.itemCenter === 'true' : this.center === 'true',
 					'vp-navigator-item--drop-up': this.drop === 'up',
 					'vp-navigator-item--reverse': this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true'
 				};
@@ -1550,6 +1574,14 @@
 	.vp-navigator-item--direction-left.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper {
 		left: auto;
 		right: 0px;
+	}
+
+	.vp-navigator-item--direction-center.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper,
+	.vp-navigator-item--direction-center.vp-navigator-item--direction-left.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper,
+	.vp-navigator-item--direction-center.vp-navigator-item--direction-right.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper {
+		left: 50%;
+		right: auto;
+		transform: translateX(-50%);
 	}
 
 	.vp-navigator-item--drop-up.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper {
