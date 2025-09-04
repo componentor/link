@@ -311,7 +311,7 @@
 				type: String,
 				default: '',
 				options: [{
-					key: 'Default',
+					key: 'Inherit',
 					value: ''
 				}, {
 					key: 'Yes',
@@ -325,7 +325,7 @@
 				type: String,
 				default: '',
 				options: [{
-					key: 'Default',
+					key: 'Inherit',
 					value: ''
 				}, {
 					key: 'Yes',
@@ -339,7 +339,7 @@
 				type: String,
 				default: '',
 				options: [{
-					key: 'Default',
+					key: 'Inherit',
 					value: ''
 				}, {
 					key: 'Left',
@@ -353,7 +353,7 @@
 				type: String,
 				default: '',
 				options: [{
-					key: 'Default',
+					key: 'Inherit',
 					value: ''
 				}, {
 					key: 'Left',
@@ -365,8 +365,11 @@
 			},
 			centerDropdown: {
 				type: String,
-				default: 'true',
+				default: '',
 				options: [{
+					key: 'Inherit',
+					value: ''
+				}, {
 					key: 'Yes',
 					value: 'true'
 				}, {
@@ -376,8 +379,11 @@
 			},
 			childrenCenterDropdown: {
 				type: String,
-				default: 'true',
+				default: '',
 				options: [{
+					key: 'Inherit',
+					value: ''
+				}, {
 					key: 'Yes',
 					value: 'true'
 				}, {
@@ -1576,9 +1582,9 @@
 		right: 0px;
 	}
 
-	.vp-navigator-item--direction-center.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper,
-	.vp-navigator-item--direction-center.vp-navigator-item--direction-left.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper,
-	.vp-navigator-item--direction-center.vp-navigator-item--direction-right.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper {
+	.vp-navigator-item--center.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper,
+	.vp-navigator-item--center.vp-navigator-item--direction-left.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper,
+	.vp-navigator-item--center.vp-navigator-item--direction-right.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper {
 		left: 50%;
 		right: auto;
 		transform: translateX(-50%);
