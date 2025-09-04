@@ -68,7 +68,10 @@
 				:class="{
 					'vp-navigator-item--up': drop === 'up'
 				}"
-				:style="{ 'z-index': level ? level + 1 : 1 }"
+				:style="{
+					'z-index': level ? level + 1 : 1,
+					backgroundColor: style.backgroundColor
+				}"
 			>
 				<slot />
 			</div>
@@ -79,6 +82,10 @@
 			class="wrapper"
 			:class="{
 				'vp-navigator-item--up': drop === 'up'
+			}"
+			:style="{
+				'z-index': level ? level + 1 : 1,
+				backgroundColor: style.backgroundColor
 			}"
 		>
 			<slot />
