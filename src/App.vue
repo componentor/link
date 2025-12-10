@@ -1217,7 +1217,8 @@
 			wrapperStyle: {
 				borderRadius: undefined,
 				background: undefined
-			}
+			},
+			windowWidth: typeof global !== 'undefined' ? global?.windowWidth || 1280 : 1280,
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
@@ -1230,6 +1231,15 @@
 			document.removeEventListener('click', this.handleClickOutside);
 		},
 		computed: {
+			bpoint() {
+				if (this.breakpoint) return this.breakpoint;
+				if (this.windowWidth > 1280) return '2xl';
+				if (this.windowWidth > 1024) return 'xl';
+				if (this.windowWidth > 768) return 'lg';
+				if (this.windowWidth > 640) return 'md';
+				if (this.windowWidth > 480) return 'sm';
+				return 'xs';
+			},
 			current() {
 				let route = this.route?.replace(/^\/|\/$/g, '');
 				let path = this.$route?.path?.replace(/^\/|\/$/g, '');
@@ -1448,7 +1458,7 @@
 					if (groups.length) {
 						style[prop] = merge?.['default']?.['xs']?.['light'];
 						let limitReached = false;
-						let limit = this?.bpoint || 'xs';
+						let limit = this.bpoint || 'xs';
 						let match = false;
 						for (const breakpoint of breakpoints) {
 							if (!limitReached) {
@@ -1464,7 +1474,7 @@
 						}
 						if (!match && this.group !== 'default') {
 							limitReached = false;
-							limit = this?.bpoint || 'xs';
+							limit = this.bpoint || 'xs';
 							for (const breakpoint of breakpoints) {
 								if (!limitReached) {
 									const firstPriority = merge?.['default']?.[breakpoint]?.[this.theme]?.toString();
