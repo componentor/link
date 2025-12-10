@@ -100,7 +100,7 @@
 	} from 'vue';
 	import Box from '@vueplayio/box';
 	export default {
-		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'center', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'expand', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'borderRadiusDropProvider', 'backgroundDropAreaProvider', 'model'],
+		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'center', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'borderRadiusDropProvider', 'backgroundDropAreaProvider', 'model'],
 		provide() {
 			const self = this;
 			return {
