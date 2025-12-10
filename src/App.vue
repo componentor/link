@@ -977,7 +977,7 @@
 								break;
 							}
 						}
-						let limit = this?.bpoint || 'xs';
+						let limit = this.bpoint || 'xs';
 						let match = false;
 						for (const breakpoint of breakpoints) {
 							for (const theme of themes) {
@@ -991,7 +991,7 @@
 							if (breakpoint === limit) break;
 						}
 						if (!match && this.group !== 'default') {
-							limit = this?.bpoint || 'xs';
+							limit = this.bpoint || 'xs';
 							for (const breakpoint of breakpoints) {
 								for (const theme of themes) {
 									let value = merge?.['default']?.[breakpoint]?.[theme];
