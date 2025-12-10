@@ -945,6 +945,7 @@
 				return 'default';
 			},
 			style() {
+				const scope = this;
 				const style = {};
 				const props = ['display', 'overflow', 'position', 'flex', 'flexWrap', 'justifyContent', 'alignItems', 'filter', 'zoom', 'transform', 'gap', 'color', 'column', 'tag', 'contain', 'expand', 'reverse', 'width', 'maxWidth', 'minWidth', 'height', 'minHeight', 'maxHeight', 'backgroundColor', 'backgroundImage', 'border', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomLeftRadius', 'borderBottomRightRadius', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'fontSize'];
 				const groups = ['default', 'hover'];
@@ -977,7 +978,7 @@
 								break;
 							}
 						}
-						let limit = this?.bpoint || 'xs';
+						let limit = scope?.bpoint || 'xs';
 						let match = false;
 						for (const breakpoint of breakpoints) {
 							for (const theme of themes) {
@@ -991,7 +992,7 @@
 							if (breakpoint === limit) break;
 						}
 						if (!match && this.group !== 'default') {
-							limit = this?.bpoint || 'xs';
+							limit = scope?.bpoint || 'xs';
 							for (const breakpoint of breakpoints) {
 								for (const theme of themes) {
 									let value = merge?.['default']?.[breakpoint]?.[theme];
