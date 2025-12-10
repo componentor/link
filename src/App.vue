@@ -464,6 +464,14 @@
 				themes: ['light', 'dark'],
 				groups: ['default', 'hover', 'current', 'active', 'focus']
 			},
+			backgroundColorDrop: {
+				type: String,
+				default: '',
+				control: 'color',
+				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
+				themes: ['light', 'dark'],
+				groups: ['default', 'hover', 'current', 'active', 'focus']
+			},
 			childrenBackgroundColor: {
 				type: String,
 				default: '',
