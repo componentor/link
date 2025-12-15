@@ -1218,7 +1218,7 @@
 				borderRadius: undefined,
 				background: undefined
 			},
-			windowWidth: typeof global !== 'undefined' ? global?.windowWidth || 1280 : 1280,
+			windowWidth: typeof global !== 'undefined' ? global?.windowWidth || 1280 : 1280
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
@@ -1233,12 +1233,12 @@
 		computed: {
 			bpoint() {
 				if (this.breakpoint) return this.breakpoint;
-				if (this.windowWidth > 1280) return '2xl';
-				if (this.windowWidth > 1024) return 'xl';
-				if (this.windowWidth > 768) return 'lg';
-				if (this.windowWidth > 640) return 'md';
-				if (this.windowWidth > 480) return 'sm';
-				return 'xs';
+				if (this.windowWidth < 640) return 'xs';
+				if (this.windowWidth < 768) return 'sm';
+				if (this.windowWidth < 1024) return 'md';
+				if (this.windowWidth < 1280) return 'lg';
+				if (this.windowWidth < 1536) return 'xl';
+				return '2xl';
 			},
 			current() {
 				let route = this.route?.replace(/^\/|\/$/g, '');
