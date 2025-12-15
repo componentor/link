@@ -124,7 +124,7 @@
 				borderRadiusDropProvider: computed(() => this.borderRadiusDrop || this.borderRadiusDropProvider),
 				backgroundDropAreaProvider: computed(() => this.backgroundDropArea || this.backgroundDropAreaProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
-				center: computed(() => this.childrenCenterDropdown ? this.childrenCenterDropdown : this.centerDropdown ? this.centerDropdown : this.center),
+				center: computed(() => false),
 				model: computed(() => {
 					const model = this.childModel;
 					if (this.childrenBorderRadius) {
@@ -365,20 +365,6 @@
 			centerDropdown: {
 				type: String,
 				default: '',
-				options: [{
-					key: 'Inherit',
-					value: ''
-				}, {
-					key: 'Yes',
-					value: 'true'
-				}, {
-					key: 'No',
-					value: 'false'
-				}]
-			},
-			childrenCenterDropdown: {
-				type: String,
-				default: 'false',
 				options: [{
 					key: 'Inherit',
 					value: ''
@@ -1619,9 +1605,9 @@
 		right: 0px;
 	}
 
-	.vp-navigator-item--center.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper,
-	.vp-navigator-item--center.vp-navigator-item--direction-left.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper,
-	.vp-navigator-item--center.vp-navigator-item--direction-right.vp-navigator-item--horizontal.vp-navigator-item--level-0 .wrapper {
+	.vp-navigator-item--center.vp-navigator-item--horizontal.vp-navigator-item--level-0>.wrapper,
+	.vp-navigator-item--center.vp-navigator-item--direction-left.vp-navigator-item--horizontal.vp-navigator-item--level-0>.wrapper,
+	.vp-navigator-item--center.vp-navigator-item--direction-right.vp-navigator-item--horizontal.vp-navigator-item--level-0>.wrapper {
 		left: 50%;
 		right: auto;
 		transform: translateX(-50%);
