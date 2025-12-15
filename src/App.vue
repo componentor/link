@@ -411,16 +411,20 @@
 					breakpoint: this.breakpoint,
 					states: this.stateArray
 				});
-				return { ...baseStyle, ...cstyleResult };
+				// Convert CSS string to object for Vue style binding
+				const cstyleObject = this.cssStringToObject(cstyleResult);
+				return { ...baseStyle, ...cstyleObject };
 			},
 			wrapperStyle() {
 				if (!this.wrapperCstyleString) return {};
 				const parsed = parse(this.wrapperCstyleString);
-				return getStyle(parsed, {
+				const cstyleResult = getStyle(parsed, {
 					theme: this.theme,
 					breakpoint: this.breakpoint,
 					states: this.stateArray
 				});
+				// Convert CSS string to object for Vue style binding
+				return this.cssStringToObject(cstyleResult);
 			},
 			current() {
 				let route = this.route?.replace(/^\/|\/$/g, '');
