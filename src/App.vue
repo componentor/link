@@ -1,9 +1,9 @@
 <template>
-	<Box
+	<component
+		:is="tag || 'div'"
 		v-bind="$attrs"
 		:class="rootClass"
-		:expand="expand ? '{`default`:{`xs`:{`light`:true}}}' : ''"
-		:style="style"
+		:style="computedStyle"
 		:title="route"
 		ref="navitem"
 		class="vp-navigator-item"
@@ -19,7 +19,7 @@
 	>
 		<component
 			v-if="icon"
-			:is="tag || (external ? 'a' : 'router-link')"
+			:is="linkTag"
 			:to="external ? undefined : (route || '')"
 			:href="!external ? undefined : (route || '')"
 			:target="target"
@@ -36,14 +36,13 @@
 		</component>
 		<component
 			class="vp-navigator-item--link"
-			:is="tag || (external ? 'a' : 'router-link')"
+			:is="linkTag"
 			:to="external ? undefined : (route || '')"
 			:href="!external ? undefined : (route || '')"
 			:target="target"
 			:style="{
 				marginLeft: $verticalLeftIndent,
-				marginRight: $verticalRightIndent,
-				justifyContent: style.justifyContent,
+				marginRight: $verticalRightIndent
 			}"
 			style="white-space: nowrap;display:inline-flex;align-items:center;flex-grow:1"
 		>
@@ -77,7 +76,7 @@
 				<slot />
 			</div>
 		</template>
-	</Box>
+	</component>
 	<template v-if="$vertical">
 		<div
 			v-show="$slots.default && (show || forceOpen || forceOpenProvider)"
@@ -98,9 +97,33 @@
 	import {
 		computed
 	} from 'vue';
-	import Box from '@vueplayio/box';
+	import {
+		parse,
+		getStyle
+	} from '@componentor/breakpoint';
 	export default {
-		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'center', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'borderRadiusDropProvider', 'backgroundDropAreaProvider', 'model'],
+		inject: {
+			path: { default: undefined },
+			pathId: { default: undefined },
+			setPath: { default: undefined },
+			theme: { default: '' },
+			breakpoint: { default: '' },
+			small: { default: false },
+			open: { default: undefined },
+			forceOpenProvider: { default: false },
+			direction: { default: '' },
+			center: { default: '' },
+			orientation: { default: '' },
+			drop: { default: '' },
+			level: { default: 0 },
+			order: { default: 'odd' },
+			reverseIcon: { default: false },
+			childrenIconSizeProvider: { default: '' },
+			childrenCaretProvider: { default: '' },
+			childrenCaretSizeProvider: { default: '' },
+			childrenCstyleProvider: { default: '' },
+			wrapperCstyleProvider: { default: '' }
+		},
 		provide() {
 			const self = this;
 			return {
@@ -121,89 +144,10 @@
 				childrenIconSizeProvider: computed(() => this.childrenIconSize || this.childrenIconSizeProvider),
 				childrenCaretProvider: computed(() => this.childrenCaret || this.childrenCaretProvider),
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
-				borderRadiusDropProvider: computed(() => this.borderRadiusDrop || this.borderRadiusDropProvider),
-				backgroundDropAreaProvider: computed(() => this.backgroundDropArea || this.backgroundDropAreaProvider),
+				childrenCstyleProvider: computed(() => this.childrenCstyle || this.childrenCstyleProvider),
+				wrapperCstyleProvider: computed(() => this.wrapperCstyle || this.wrapperCstyleProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
-				center: computed(() => false),
-				model: computed(() => {
-					const model = this.childModel;
-					if (this.childrenBorderRadius) {
-						try {
-							model.borderRadius = JSON.parse(this.childrenBorderRadius.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenGap) {
-						try {
-							model.gap = JSON.parse(this.childrenGap.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenVerticalLeftIndent) {
-						try {
-							model.verticalLeftIndent = JSON.parse(this.childrenVerticalLeftIndent.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenVerticalRightIndent) {
-						try {
-							model.verticalRightIndent = JSON.parse(this.childrenVerticalRightIndent.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenFontSize) {
-						try {
-							model.fontSize = JSON.parse(this.childrenFontSize.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenFontWeight) {
-						try {
-							model.fontWeight = JSON.parse(this.childrenFontWeight.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenColor) {
-						try {
-							model.color = JSON.parse(this.childrenColor.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenBackgroundColor) {
-						try {
-							model.backgroundColor = JSON.parse(this.childrenBackgroundColor.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenBackgroundImage) {
-						try {
-							model.backgroundImage = JSON.parse(this.childrenBackgroundImage.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenBorder) {
-						try {
-							model.border = JSON.parse(this.childrenBorder.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenMargin) {
-						try {
-							model.margin = JSON.parse(this.childrenMargin.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenPadding) {
-						try {
-							model.padding = JSON.parse(this.childrenPadding.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenTransform) {
-						try {
-							model.transform = JSON.parse(this.childrenTransform.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenWidth) {
-						try {
-							model.width = JSON.parse(this.childrenWidth.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenHeight) {
-						try {
-							model.height = JSON.parse(this.childrenHeight.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					return model;
-				})
+				center: computed(() => false)
 			};
 		},
 		props: {
@@ -376,835 +320,30 @@
 					value: 'false'
 				}]
 			},
-			expand: {
-				type: Boolean,
-				default: null
-			},
 			forceOpen: {
 				type: Boolean,
 				default: false
 			},
-			fontSize: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			cstyle: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			childrenFontSize: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			childrenCstyle: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			fontWeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenFontWeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			color: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			backgroundDropArea: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			backgroundColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			backgroundColorDrop: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenBackgroundColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			backgroundImage: {
-				type: String,
-				default: '',
-				control: 'media',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenBackgroundImage: {
-				type: String,
-				default: '',
-				control: 'media',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			gap: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenGap: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			width: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			minWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			maxWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			height: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenHeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			minHeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			maxHeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			border: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenBorder: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRightColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderLeftColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRightWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderLeftWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRightStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderLeftStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenBorderRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRadiusDrop: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopLeftRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopRightRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomRightRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomLeftRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			padding: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenPadding: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			paddingTop: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			paddingRight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			paddingBottom: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			paddingLeft: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			margin: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenMargin: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			marginTop: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			marginRight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			marginBottom: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			marginLeft: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			justifyContent: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'flex-start',
-					key: 'flex-start'
-				}, {
-					value: 'flex-end',
-					key: 'flex-end'
-				}, {
-					value: 'center',
-					key: 'center'
-				}, {
-					value: 'space-between',
-					key: 'space-between'
-				}, {
-					value: 'space-around',
-					key: 'space-around'
-				}, {
-					value: 'space-evenly',
-					key: 'space-evenly'
-				}, {
-					value: 'stretch',
-					key: 'stretch'
-				}, {
-					value: 'normal',
-					key: 'normal'
-				}, {
-					value: 'start',
-					key: 'start'
-				}, {
-					value: 'end',
-					key: 'end'
-				}, {
-					value: 'left',
-					key: 'left'
-				}, {
-					value: 'right',
-					key: 'right'
-				}, {
-					value: 'inherit',
-					key: 'inherit'
-				}, {
-					value: 'initial',
-					key: 'initial'
-				}, {
-					value: 'revert',
-					key: 'revert'
-				}, {
-					value: 'revert-layer',
-					key: 'revert-layer'
-				}, {
-					value: 'unset',
-					key: 'unset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			position: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'relative',
-					key: 'relative'
-				}, {
-					value: 'absolute',
-					key: 'absolute'
-				}, {
-					value: 'fixed',
-					key: 'fixed'
-				}, {
-					value: 'sticky',
-					key: 'sticky'
-				}, {
-					value: 'revert',
-					key: 'revert'
-				}, {
-					value: 'static',
-					key: 'static'
-				}, {
-					value: 'initial',
-					key: 'initial'
-				}, {
-					value: 'inherit',
-					key: 'inherit'
-				}, {
-					value: 'unset',
-					key: 'unset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover']
-			},
-			filter: {
-				type: String,
-				default: '',
-				control: 'slider',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover'],
-				sizer: true
-			},
-			zoom: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: '%',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover'],
-				sizer: true
-			},
-			transform: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: '%',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover'],
-				sizer: true
-			},
-			childrenTransform: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: '%',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover'],
-				sizer: true
+			wrapperCstyle: {
+				type: [String, Object, Array],
+				default: ''
 			}
-		},
-		components: {
-			Box: Box
 		},
 		data: () => ({
 			currentPath: '',
 			currentPathId: '',
 			show: false,
-			childModel: {},
 			hover: false,
 			active: false,
-			focus: false,
-			wrapperStyle: {
-				borderRadius: undefined,
-				background: undefined
-			},
-			windowWidth: typeof global !== 'undefined' ? global?.windowWidth || 1280 : 1280
+			focus: false
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
@@ -1217,14 +356,71 @@
 			document.removeEventListener('click', this.handleClickOutside);
 		},
 		computed: {
-			bpoint() {
-				if (this.breakpoint) return this.breakpoint;
-				if (this.windowWidth < 640) return 'xs';
-				if (this.windowWidth < 768) return 'sm';
-				if (this.windowWidth < 1024) return 'md';
-				if (this.windowWidth < 1280) return 'lg';
-				if (this.windowWidth < 1536) return 'xl';
-				return '2xl';
+			linkTag() {
+				return this.tag || (this.external ? 'a' : 'router-link');
+			},
+			cstyleString() {
+				const style = this.cstyle || this.childrenCstyleProvider;
+				if (!style) return '';
+				if (typeof style === 'string') return style;
+				if (Array.isArray(style)) {
+					return style.map(item => {
+							if (typeof item === 'string') return item;
+							return Object.entries(item)
+								.map(([key, value]) => `${key}:${value}`)
+								.join('; ');
+						})
+						.join('; ');
+				}
+				return Object.entries(style)
+					.map(([key, value]) => `${key}:${value}`)
+					.join('; ');
+			},
+			wrapperCstyleString() {
+				const style = this.wrapperCstyle || this.wrapperCstyleProvider;
+				if (!style) return '';
+				if (typeof style === 'string') return style;
+				if (Array.isArray(style)) {
+					return style.map(item => {
+							if (typeof item === 'string') return item;
+							return Object.entries(item)
+								.map(([key, value]) => `${key}:${value}`)
+								.join('; ');
+						})
+						.join('; ');
+				}
+				return Object.entries(style)
+					.map(([key, value]) => `${key}:${value}`)
+					.join('; ');
+			},
+			stateArray() {
+				const states = [];
+				if (this.current) states.push('current');
+				if (this.hover) states.push('hover');
+				if (this.active) states.push('active');
+				if (this.focus) states.push('focus');
+				return states;
+			},
+			computedStyle() {
+				const baseStyle = {};
+				baseStyle['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
+				if (!this.cstyleString) return baseStyle;
+				const parsed = parse(this.cstyleString);
+				const cstyleResult = getStyle(parsed, {
+					theme: this.theme,
+					breakpoint: this.breakpoint,
+					states: this.stateArray
+				});
+				return { ...baseStyle, ...cstyleResult };
+			},
+			wrapperStyle() {
+				if (!this.wrapperCstyleString) return {};
+				const parsed = parse(this.wrapperCstyleString);
+				return getStyle(parsed, {
+					theme: this.theme,
+					breakpoint: this.breakpoint,
+					states: this.stateArray
+				});
 			},
 			current() {
 				let route = this.route?.replace(/^\/|\/$/g, '');
@@ -1235,23 +431,16 @@
 						.replace('//', '/'))) return true;
 				return route && route === path || !route && this.$route?.path === '/' || route === '/' && !this.$route?.path;
 			},
-			group() {
-				if (this.current) return 'current';
-				if (this.active) return 'active';
-				if (this.hover) return 'hover';
-				if (this.focus) return 'focus';
-				return 'default';
-			},
 			$vertical() {
 				return !this.horizontal || this.small;
 			},
 			$verticalLeftIndent() {
-				if (!this.$vertical || !this.level || !this.verticalLeftIndent && !this.model?.verticalLeftIndent) return undefined;
-				return `calc(${this.verticalLeftIndent || this.model.verticalLeftIndent} * ${this.level})`;
+				if (!this.$vertical || !this.level || !this.verticalLeftIndent) return undefined;
+				return `calc(${this.verticalLeftIndent} * ${this.level})`;
 			},
 			$verticalRightIndent() {
-				if (!this.$vertical || !this.level || !this.verticalRightIndent && !this.model?.verticalRightIndent) return undefined;
-				return `calc(${this.verticalRightIndent || this.model.verticalRightIndent} * ${this.level})`;
+				if (!this.$vertical || !this.level || !this.verticalRightIndent) return undefined;
+				return `calc(${this.verticalRightIndent} * ${this.level})`;
 			},
 			$iconSize() {
 				if (this.iconSize) return this.iconSize;
@@ -1259,11 +448,11 @@
 				return '20px';
 			},
 			$icon() {
-				if (!this.$style?.icon) return null;
-				if (this.$style.icon?.startsWith('--')) {
-					return `var(${this.$style.icon})`;
+				if (!this.icon) return null;
+				if (this.icon?.startsWith('--')) {
+					return `var(${this.icon})`;
 				} else {
-					return `url(${this.$style.icon})`;
+					return `url(${this.icon})`;
 				}
 			},
 			$caret() {
@@ -1278,16 +467,6 @@
 				if (this.caretSize) return this.caretSize;
 				if (this.childrenCaretSizeProvider) return this.childrenCaretSizeProvider;
 				return '20px';
-			},
-			$borderRadiusDrop() {
-				if (this.borderRadiusDrop) return this.borderRadiusDrop;
-				if (this.borderRadiusDropProvider) return this.borderRadiusDropProvider;
-				return '';
-			},
-			$backgroundDropArea() {
-				if (this.backgroundDropArea) return this.backgroundDropArea;
-				if (this.backgroundDropAreaProvider) return this.backgroundDropAreaProvider;
-				return '';
 			},
 			horizontal() {
 				return this.orientation === 'Row';
@@ -1309,173 +488,6 @@
 				rootClass[`vp-navigator-item--level-${level}`] = true;
 				rootClass[`vp-navigator-item--${this.order}`] = true;
 				return rootClass;
-			},
-			style() {
-				this.childModel = {
-					verticalLeftIndent: this.verticalLeftIndent || this.model?.verticalLeftIndent,
-					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
-				};
-				const style = {};
-				const props = ['$borderRadiusDrop', '$backgroundDropArea', 'filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
-				const groups = ['default', 'hover', 'current', 'active', 'focus'];
-				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
-				const themes = [this.theme || 'light', ...['light', 'dark'].filter(t => t !== (this.theme || 'light'))];
-				for (let prop of props) {
-					let priority = {};
-					if (this[prop]) {
-						try {
-							priority = JSON.parse(this[prop].replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					const fallback = this.model?.[prop] || {};
-					const merge = {};
-					for (const group of [...new Set([...Object.keys(priority), ...Object.keys(fallback)])]) {
-						const pri = priority?.[group] || {};
-						const fb = fallback?.[group] || {};
-						merge[group] = {};
-						for (const breakpoint of [...new Set([...Object.keys(pri), ...Object.keys(fb)])]) {
-							const p = pri?.[breakpoint] || {};
-							const f = fb?.[breakpoint] || {};
-							merge[group][breakpoint] = {};
-							for (const theme of [...new Set([...Object.keys(p), ...Object.keys(f)])]) {
-								const value = p?.[theme]?.toString() || f?.[theme]?.toString() || null;
-								merge[group][breakpoint][theme] = value;
-							}
-						}
-					}
-					const groups = Object.keys(merge);
-					if (groups.length) {
-						for (const theme of themes) {
-							style[prop] = merge?.['default']?.['xs']?.[theme];
-							if (typeof style[prop] !== 'undefined' && style[prop] !== null && style[prop] !== '') {
-								break;
-							}
-						}
-						let limit = this.breakpoint || '2xl';
-						let match = false;
-						for (const breakpoint of breakpoints) {
-							for (const theme of themes) {
-								let value = merge?.[this.group]?.[breakpoint]?.[theme]?.toString();
-								if (typeof value !== 'undefined' && value !== null && value !== '') {
-									let important = priority?.[this.group]?.[breakpoint]?.[theme]?.toString() === value;
-									match = true;
-									style[prop] = value + (important ? '!important' : '');
-									style[prop] = style[prop].replace('!important!important', '!important');
-									break;
-								}
-							}
-							if (breakpoint === limit) break;
-						}
-						if (!match && this.group !== 'default') {
-							limit = this.breakpoint || '2xl';
-							for (const breakpoint of breakpoints) {
-								for (const theme of themes) {
-									let value = merge?.['default']?.[breakpoint]?.[theme]?.toString();
-									if (typeof value !== 'undefined' && value !== null && value !== '') {
-										let important = priority?.['default']?.[breakpoint]?.[theme]?.toString() === value;
-										match = true;
-										style[prop] = value + (important ? '!important' : '');
-										style[prop] = style[prop].replace('!important!important', '!important');
-										break;
-									}
-								}
-								if (breakpoint === limit) break;
-							}
-						}
-						this.childModel[prop] = merge;
-					}
-				}
-				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
-				if (style['backgroundColorDrop'] && !style['backgroundColor']?.includes('!important')) {
-					let fill = false;
-					if (this.level < 1 && (this.forceOpen || this.forceOpenProvider || this.small)) {
-						const bg = style['backgroundColor'];
-						const isTransparent = !bg || bg === 'transparent' || /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)$/i.test(bg) || /^hsla?\(\s*\d+\s*,\s*[\d.]+%\s*,\s*[\d.]+%\s*,\s*0\s*\)$/i.test(bg) || /^#(?:[0-9a-f]{2}){3}00$/i.test(bg) || /^#(?:[0-9a-f]{4}|[0-9a-f]{8})$/i.test(bg) && bg.slice(-2)
-							.toLowerCase() === '00';
-						fill = isTransparent;
-					}
-					if (this.level >= 1 || fill) {
-						style['backgroundColor'] = style['backgroundColorDrop'];
-					}
-					delete style['backgroundColorDrop'];
-				}
-				if (style?.['filter']?.includes('!important')) {
-					style['filter'] = style['filter'].replace('!important', '');
-				}
-				if (style?.$borderRadiusDrop) {
-					this.wrapperStyle.borderRadius = style.$borderRadiusDrop;
-				}
-				if (style?.$backgroundDropArea) {
-					this.wrapperStyle.background = style.$backgroundDropArea;
-				} else {
-					this.wrapperStyle.background = style.backgroundColor;
-				}
-				delete style.$borderRadiusDrop;
-				delete style.$backgroundDropArea;
-				return style;
-			},
-			$style() {
-				const style = {};
-				const props = ['icon'];
-				const groups = ['default', 'hover'];
-				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
-				const themes = ['light', 'dark'];
-				for (const prop of props) {
-					let priority = {};
-					if (this[prop]) {
-						try {
-							priority = JSON.parse(this[prop].replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					const merge = {};
-					for (const group of Object.keys(priority)) {
-						const pri = priority?.[group] || {};
-						merge[group] = {};
-						for (const breakpoint of Object.keys(pri)) {
-							const p = pri?.[breakpoint] || {};
-							merge[group][breakpoint] = {};
-							for (const theme of Object.keys(p)) {
-								const value = p?.[theme]?.toString() || null;
-								merge[group][breakpoint][theme] = value;
-							}
-						}
-					}
-					const groups = Object.keys(merge);
-					if (groups.length) {
-						style[prop] = merge?.['default']?.['xs']?.['light'];
-						let limitReached = false;
-						let limit = this.bpoint || 'xs';
-						let match = false;
-						for (const breakpoint of breakpoints) {
-							if (!limitReached) {
-								const firstPriority = merge?.[this.group]?.[breakpoint]?.[this.theme]?.toString();
-								const secondPriority = merge?.[this.group]?.[breakpoint]?.['light']?.toString();
-								const value = firstPriority || secondPriority;
-								if (value) {
-									style[prop] = value;
-									match = true;
-								}
-								limitReached = breakpoint === limit;
-							}
-						}
-						if (!match && this.group !== 'default') {
-							limitReached = false;
-							limit = this.bpoint || 'xs';
-							for (const breakpoint of breakpoints) {
-								if (!limitReached) {
-									const firstPriority = merge?.['default']?.[breakpoint]?.[this.theme]?.toString();
-									const secondPriority = merge?.['default']?.[breakpoint]?.['light']?.toString();
-									const value = firstPriority || secondPriority;
-									if (value) {
-										style[prop] = value;
-									}
-									limitReached = breakpoint === limit;
-								}
-							}
-						}
-					}
-				}
-				return style;
 			}
 		},
 		watch: {
@@ -1505,7 +517,7 @@
 				}
 			},
 			handleClickOutside(event) {
-				if (!this.$vertical && this.show && this.$refs.navitem && !this.$refs.navitem.$el.contains(event.target)) {
+				if (!this.$vertical && this.show && this.$refs.navitem && !this.$refs.navitem.contains(event.target)) {
 					this.show = false;
 				}
 			},
