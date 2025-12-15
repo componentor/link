@@ -352,7 +352,8 @@
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
-			if (this.$vertical && this.route && (this.$route?.path === this.route || this.$route?.path.startsWith((this.route + '/')
+			const currentPath = this.currentPath;
+			if (this.$vertical && this.route && currentPath && (currentPath === this.route || currentPath.startsWith((this.route + '/')
 					.replace('//', '/'))) && !this.show) {
 				this.toggle(true);
 			}
@@ -365,7 +366,13 @@
 				return this.tag || (this.external ? 'a' : 'router-link');
 			},
 			cstyleString() {
-				const style = this.cstyle || this.childrenCstyleProvider;
+				// Handle both raw values and Vue refs (childrenCstyleProvider is a computed ref from Navigator)
+				let providerValue = this.childrenCstyleProvider;
+				// Unwrap if it's a ref
+				if (providerValue && typeof providerValue === 'object' && 'value' in providerValue) {
+					providerValue = providerValue.value;
+				}
+				const style = this.cstyle || providerValue;
 				if (!style) return '';
 				if (typeof style === 'string') return style;
 				if (Array.isArray(style)) {
@@ -406,39 +413,68 @@
 				if (this.focus) states.push('focus');
 				return states;
 			},
+			// Helper to unwrap Vue refs from injected computed values
+			$theme() {
+				const val = this.theme;
+				if (val && typeof val === 'object' && 'value' in val) return val.value;
+				return val || '';
+			},
+			$breakpoint() {
+				const val = this.breakpoint;
+				if (val && typeof val === 'object' && 'value' in val) return val.value;
+				return val || '';
+			},
 			computedStyle() {
 				const baseStyle = {};
 				baseStyle['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
 				if (!this.cstyleString) return baseStyle;
+
+				// Parse the cstyle and get styles (including current state)
 				const parsed = parse(this.cstyleString);
 				const cstyleResult = getStyle(parsed, {
-					theme: this.theme,
-					breakpoint: this.breakpoint,
+					theme: this.$theme,
+					breakpoint: this.$breakpoint,
 					states: this.stateArray
 				});
-				// Convert CSS string to object for Vue style binding
 				const cstyleObject = this.cssStringToObject(cstyleResult);
+
 				return { ...baseStyle, ...cstyleObject };
 			},
 			wrapperStyle() {
 				if (!this.wrapperCstyleString) return {};
 				const parsed = parse(this.wrapperCstyleString);
 				const cstyleResult = getStyle(parsed, {
-					theme: this.theme,
-					breakpoint: this.breakpoint,
+					theme: this.$theme,
+					breakpoint: this.$breakpoint,
 					states: this.stateArray
 				});
 				// Convert CSS string to object for Vue style binding
 				return this.cssStringToObject(cstyleResult);
 			},
+			currentPath() {
+				// Get current path from router or window.location
+				// Access $route.path directly to ensure reactivity tracking
+				if (this.$route?.path) return this.$route.path;
+				if (this.$router?.currentRoute?.value?.path) return this.$router.currentRoute.value.path;
+				if (typeof window !== 'undefined') return window.location.pathname;
+				return '';
+			},
 			current() {
+				const currentPath = this.currentPath;
+				if (!currentPath) return false;
 				let route = this.route?.replace(/^\/|\/$/g, '');
-				let path = this.$route?.path?.replace(/^\/|\/$/g, '');
-				if (typeof this.setPath === 'undefined') return false;
+				let path = currentPath.replace(/^\/|\/$/g, '');
+				// If this is a parent link with children and no route, don't mark as current
 				if (!route && this.$slots.default) return false;
-				if (route && path.startsWith((route + '/')
-						.replace('//', '/'))) return true;
-				return route && route === path || !route && this.$route?.path === '/' || route === '/' && !this.$route?.path;
+				// Exact match
+				if (route === path) return true;
+				// Home route special case
+				if (!route && path === '') return true;
+				if (route === '/' && path === '') return true;
+				// Match parent routes for dynamic/nested routes
+				// e.g. /dashboard matches /dashboard/settings
+				if (route && path.startsWith(route + '/')) return true;
+				return false;
 			},
 			$vertical() {
 				return !this.horizontal || this.small;
@@ -493,7 +529,8 @@
 					'vp-navigator-item--direction-right': this.itemDirection ? this.itemDirection === 'right' : this.direction === 'right',
 					'vp-navigator-item--center': this.centerDropdown ? this.centerDropdown === 'true' : this.center === 'true',
 					'vp-navigator-item--drop-up': this.drop === 'up',
-					'vp-navigator-item--reverse': this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true'
+					'vp-navigator-item--reverse': this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true',
+					'vp-navigator-item--current': this.current
 				};
 				const level = this.level || 0;
 				rootClass[`vp-navigator-item--level-${level}`] = true;
@@ -562,6 +599,48 @@
 					}
 				}
 				return result;
+			},
+			// Extract styles prefixed with 'current:' since @componentor/breakpoint
+			// doesn't recognize 'current' as a valid state (only CSS pseudo-classes)
+			extractCurrentStyles(cstyleString) {
+				if (!cstyleString) return {};
+				const result = {};
+				const declarations = cstyleString.split(';').map(s => s.trim()).filter(s => s.length > 0);
+				const isDark = this.theme === 'dark' || (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+
+				for (const declaration of declarations) {
+					const parts = declaration.split(':').map(p => p.trim());
+					if (parts.length < 3) continue;
+
+					// Check if first part is 'current'
+					if (parts[0] !== 'current') continue;
+
+					// Handle current:dark:property:value or current:property:value
+					if (parts[1] === 'dark' && parts.length >= 4) {
+						// current:dark:property:value - only apply in dark mode
+						if (isDark) {
+							const property = parts[2];
+							const value = parts.slice(3).join(':');
+							result[property] = value;
+						}
+					} else if (parts[1] === 'light' && parts.length >= 4) {
+						// current:light:property:value - only apply in light mode
+						if (!isDark) {
+							const property = parts[2];
+							const value = parts.slice(3).join(':');
+							result[property] = value;
+						}
+					} else {
+						// current:property:value - apply always when current
+						const property = parts[1];
+						const value = parts.slice(2).join(':');
+						// Don't override if we already have a theme-specific value
+						if (!result[property]) {
+							result[property] = value;
+						}
+					}
+				}
+				return result;
 			}
 		}
 	};
@@ -578,9 +657,10 @@
 		overflow: visible;
 		padding: 0;
 		cursor: pointer;
-		align-items: stretch;
+		align-items: center;
 		transition: border-color .3s linear, opacity .3s linear, color .3s linear, background .3s linear, background-color .3s linear;
 		flex-wrap: nowrap !important;
+		gap: 6px;
 	}
 
 	.vp-navigator-item--vertical.vp-navigator-item--show .vp-navigator-item--arrow {
@@ -710,9 +790,37 @@
 	.vp-navigator-item--small,
 	.vp-navigator-item--drop-up,
 	.vp-navigator-item--odd,
-	.vp-navigator-item--even,
-	.vp-navigator-item--link {
+	.vp-navigator-item--even {
 		cursor: inherit;
+	}
+
+	.vp-navigator-item--link {
+		cursor: pointer;
+	}
+
+	.vp-navigator-item,
+	.vp-navigator-item *,
+	.vp-navigator-item a,
+	.vp-navigator-item a:visited,
+	.vp-navigator-item a:hover {
+		cursor: pointer !important;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.wrapper {
+		display: flex;
+		flex-direction: column;
+		padding: 8px;
+		border-radius: 12px;
+		background: color-mix(in oklch, var(--color-neutral, #888) 15%, white);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.wrapper {
+			background: color-mix(in oklch, var(--color-neutral, #888) 25%, black);
+		}
 	}
 
 </style>
