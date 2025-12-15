@@ -130,7 +130,6 @@
 			return {
 				setPath(path, id) {
 					if (self.currentPathId !== id) {
-						self.currentPath = path;
 						self.currentPathId = id;
 						if (typeof self.setPath === 'function') {
 							self.setPath(path, id);
@@ -343,7 +342,6 @@
 			}
 		},
 		data: () => ({
-			currentPath: '',
 			currentPathId: '',
 			show: false,
 			hover: false,
@@ -429,7 +427,6 @@
 				baseStyle['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
 				if (!this.cstyleString) return baseStyle;
 
-				// Parse the cstyle and get styles (including current state)
 				const parsed = parse(this.cstyleString);
 				const cstyleResult = getStyle(parsed, {
 					theme: this.$theme,
@@ -555,12 +552,11 @@
 					this.show = !this.show;
 				}
 				if (this.show) {
-					this.currentPath = this.route;
 					this.currentPathId = [...Array(8)].map(() => Math.random()
 							.toString(36)[2])
 						.join('');
 					if (typeof this.setPath === 'function') {
-						this.setPath(this.currentPath, this.currentPathId);
+						this.setPath(this.route, this.currentPathId);
 					}
 				}
 			},
