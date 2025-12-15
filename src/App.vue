@@ -122,7 +122,8 @@
 			childrenCaretProvider: { default: '' },
 			childrenCaretSizeProvider: { default: '' },
 			childrenCstyleProvider: { default: '' },
-			wrapperCstyleProvider: { default: '' }
+			wrapperCstyleProvider: { default: '' },
+			model: { default: () => ({}) }
 		},
 		provide() {
 			const self = this;
@@ -443,12 +444,14 @@
 				return !this.horizontal || this.small;
 			},
 			$verticalLeftIndent() {
-				if (!this.$vertical || !this.level || !this.verticalLeftIndent) return undefined;
-				return `calc(${this.verticalLeftIndent} * ${this.level})`;
+				const indent = this.verticalLeftIndent || this.model?.verticalLeftIndent;
+				if (!this.$vertical || !this.level || !indent) return undefined;
+				return `calc(${indent} * ${this.level})`;
 			},
 			$verticalRightIndent() {
-				if (!this.$vertical || !this.level || !this.verticalRightIndent) return undefined;
-				return `calc(${this.verticalRightIndent} * ${this.level})`;
+				const indent = this.verticalRightIndent || this.model?.verticalRightIndent;
+				if (!this.$vertical || !this.level || !indent) return undefined;
+				return `calc(${indent} * ${this.level})`;
 			},
 			$iconSize() {
 				if (this.iconSize) return this.iconSize;
