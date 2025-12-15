@@ -364,7 +364,7 @@
 			},
 			centerDropdown: {
 				type: String,
-				default: '',
+				default: 'false',
 				options: [{
 					key: 'Inherit',
 					value: ''
@@ -378,7 +378,7 @@
 			},
 			childrenCenterDropdown: {
 				type: String,
-				default: '',
+				default: 'false',
 				options: [{
 					key: 'Inherit',
 					value: ''
