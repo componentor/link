@@ -1605,9 +1605,9 @@
 		right: 0px;
 	}
 
-	.vp-navigator-item--center.vp-navigator-item--horizontal.vp-navigator-item--level-0>.wrapper,
-	.vp-navigator-item--center.vp-navigator-item--direction-left.vp-navigator-item--horizontal.vp-navigator-item--level-0>.wrapper,
-	.vp-navigator-item--center.vp-navigator-item--direction-right.vp-navigator-item--horizontal.vp-navigator-item--level-0>.wrapper {
+	.vp-navigator-item--center.vp-navigator-item--horizontal>.wrapper,
+	.vp-navigator-item--center.vp-navigator-item--direction-left.vp-navigator-item--horizontal>.wrapper,
+	.vp-navigator-item--center.vp-navigator-item--direction-right.vp-navigator-item--horizontal>.wrapper {
 		left: 50%;
 		right: auto;
 		transform: translateX(-50%);
