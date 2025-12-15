@@ -147,7 +147,11 @@
 				childrenCstyleProvider: computed(() => this.childrenCstyle || this.childrenCstyleProvider),
 				wrapperCstyleProvider: computed(() => this.wrapperCstyle || this.wrapperCstyleProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
-				center: computed(() => false)
+				center: computed(() => false),
+				orientation: computed(() => this.orientation),
+				small: computed(() => this.small),
+				theme: computed(() => this.theme),
+				breakpoint: computed(() => this.breakpoint)
 			};
 		},
 		props: {
@@ -538,6 +542,23 @@
 				} else {
 					window.open(route, target || (shouldOpenInNewTab ? '_blank' : '_self'));
 				}
+			},
+			cssStringToObject(cssString) {
+				if (!cssString || typeof cssString !== 'string') return {};
+				const result = {};
+				// Split by semicolon and process each declaration
+				const declarations = cssString.split(';').map(s => s.trim()).filter(s => s.length > 0);
+				for (const declaration of declarations) {
+					// Find the first colon to split property and value
+					const colonIndex = declaration.indexOf(':');
+					if (colonIndex === -1) continue;
+					const property = declaration.substring(0, colonIndex).trim();
+					const value = declaration.substring(colonIndex + 1).trim();
+					if (property && value) {
+						result[property] = value;
+					}
+				}
+				return result;
 			}
 		}
 	};
