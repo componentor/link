@@ -1613,17 +1613,25 @@
 		transform: translateX(-50%);
 	}
 
+	.vp-navigator-item--center.vp-navigator-item--horizontal:not(.vp-navigator-item--level-0):hover>.vp-navigator-item--arrow {
+		transform: rotate(90deg);
+	}
+
 	.vp-navigator-item--center.vp-navigator-item--horizontal:not(.vp-navigator-item--level-0)>.wrapper {
-		left: 50%;
-		right: auto;
-		transform: translateX(-50%);
+		left: 50% !important;
+		right: auto !important;
+		transform: translateX(-50%) !important;
 		top: 100%;
 	}
 
+	.vp-navigator-item--drop-up.vp-navigator-item--center.vp-navigator-item--horizontal:not(.vp-navigator-item--level-0):hover>.vp-navigator-item--arrow {
+		transform: rotate(-90deg);
+	}
+
 	.vp-navigator-item--drop-up .vp-navigator-item--center.vp-navigator-item--horizontal:not(.vp-navigator-item--level-0)>.wrapper {
-		left: 50%;
-		right: auto;
-		transform: translateX(-50%);
+		left: 50% !important;
+		right: auto !important;
+		transform: translateX(-50%) !important;
 		bottom: 100%;
 	}
 
