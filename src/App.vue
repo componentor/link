@@ -1613,7 +1613,7 @@
 		transform: translateX(-50%);
 	}
 
-	.vp-navigator-item--center.vp-navigator-item--horizontal:not(.vp-navigator-item--level-0):hover>.vp-navigator-item--arrow {
+	.vp-navigator-item--center.vp-navigator-item--horizontal:not(.vp-navigator-item--level-0)>.vp-navigator-item--arrow {
 		transform: rotate(90deg);
 	}
 
@@ -1624,7 +1624,7 @@
 		top: 100%;
 	}
 
-	.vp-navigator-item--drop-up.vp-navigator-item--center.vp-navigator-item--horizontal:not(.vp-navigator-item--level-0):hover>.vp-navigator-item--arrow {
+	.vp-navigator-item--drop-up.vp-navigator-item--center.vp-navigator-item--horizontal:not(.vp-navigator-item--level-0)>.vp-navigator-item--arrow {
 		transform: rotate(-90deg);
 	}
 
