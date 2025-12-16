@@ -339,6 +339,16 @@
 			wrapperCstyle: {
 				type: [String, Object, Array],
 				default: ''
+			},
+			breakpointStrategy: {
+				type: String,
+				default: 'mobile-first',
+				validator: v => ['exact', 'mobile-first', 'desktop-first'].includes(v)
+			},
+			themeStrategy: {
+				type: String,
+				default: 'fallback',
+				validator: v => ['strict', 'fallback'].includes(v)
 			}
 		},
 		data: () => ({
@@ -431,7 +441,9 @@
 				const cstyleResult = getStyle(parsed, {
 					theme: this.$theme,
 					breakpoint: this.$breakpoint,
-					states: this.stateArray
+					states: this.stateArray,
+					breakpointStrategy: this.breakpointStrategy,
+					themeStrategy: this.themeStrategy
 				});
 				const cstyleObject = this.cssStringToObject(cstyleResult);
 
@@ -443,7 +455,9 @@
 				const cstyleResult = getStyle(parsed, {
 					theme: this.$theme,
 					breakpoint: this.$breakpoint,
-					states: this.stateArray
+					states: this.stateArray,
+					breakpointStrategy: 'mobile-first',
+					themeStrategy: 'fallback'
 				});
 				// Convert CSS string to object for Vue style binding
 				return this.cssStringToObject(cstyleResult);
