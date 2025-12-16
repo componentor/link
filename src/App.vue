@@ -25,11 +25,15 @@
 			:target="target"
 			class="vp-navigator-item--link"
 			style="display:inline-flex;align-items:center"
+			:style="{
+				...iconWrapperStyle
+			}"
 		>
 			<div
 				:style="{
 					'background-image': $icon,
-					'width': $iconSize
+					'width': $iconSize,
+					...iconStyle
 				}"
 				style="background-repeat:no-repeat;background-size:contain;background-position:center;aspect-ratio:1/1"
 			/>
@@ -42,7 +46,8 @@
 			:target="target"
 			:style="{
 				marginLeft: $verticalLeftIndent,
-				marginRight: $verticalRightIndent
+				marginRight: $verticalRightIndent,
+				...linkStyle
 			}"
 			style="white-space: nowrap;display:inline-flex;align-items:center;flex-grow:1"
 		>
@@ -53,11 +58,15 @@
 			@click.stop="toggle()"
 			class="vp-navigator-item--link vp-navigator-item--arrow"
 			style="display:inline-flex;align-items:center"
+			:style="{
+				...caretWrapperStyle
+			}"
 		>
 			<div
 				:style="{
 					'background-image': $caret,
-					'width': $caretSize
+					'width': $caretSize,
+					...caretStyle
 				}"
 				style="background-repeat:no-repeat;background-size:contain;background-position:center;aspect-ratio:1/1"
 			/>
@@ -123,6 +132,17 @@
 			childrenCaretSizeProvider: { default: '' },
 			childrenCstyleProvider: { default: '' },
 			wrapperCstyleProvider: { default: '' },
+			iconWrapperCstyleProvider: { default: '' },
+			iconCstyleProvider: { default: '' },
+			linkCstyleProvider: { default: '' },
+			caretWrapperCstyleProvider: { default: '' },
+			caretCstyleProvider: { default: '' },
+			childrenCstyleIconWrapperProvider: { default: '' },
+			childrenCstyleIconProvider: { default: '' },
+			childrenCstyleLinkProvider: { default: '' },
+			childrenCstyleCaretWrapperProvider: { default: '' },
+			childrenCstyleCaretProvider: { default: '' },
+			childrenCstyleModalProvider: { default: '' },
 			model: { default: () => ({}) }
 		},
 		provide() {
@@ -144,8 +164,19 @@
 				childrenIconSizeProvider: computed(() => this.childrenIconSize || this.childrenIconSizeProvider),
 				childrenCaretProvider: computed(() => this.childrenCaret || this.childrenCaretProvider),
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
-				childrenCstyleProvider: computed(() => this.childrenCstyle || this.childrenCstyleProvider),
+				childrenCstyleProvider: computed(() => this.childrenCstyleItem || this.childrenCstyle || this.childrenCstyleProvider),
 				wrapperCstyleProvider: computed(() => this.wrapperCstyle || this.wrapperCstyleProvider),
+				iconWrapperCstyleProvider: computed(() => this.childrenCstyleIconWrapper || this.childrenCstyleIconWrapperProvider || this.iconWrapperCstyle || this.iconWrapperCstyleProvider),
+				iconCstyleProvider: computed(() => this.childrenCstyleIcon || this.childrenCstyleIconProvider || this.iconCstyle || this.iconCstyleProvider),
+				linkCstyleProvider: computed(() => this.childrenCstyleLink || this.childrenCstyleLinkProvider || this.linkCstyle || this.linkCstyleProvider),
+				caretWrapperCstyleProvider: computed(() => this.childrenCstyleCaretWrapper || this.childrenCstyleCaretWrapperProvider || this.caretWrapperCstyle || this.caretWrapperCstyleProvider),
+				caretCstyleProvider: computed(() => this.childrenCstyleCaret || this.childrenCstyleCaretProvider || this.caretCstyle || this.caretCstyleProvider),
+				childrenCstyleIconWrapperProvider: computed(() => this.childrenCstyleIconWrapper || this.childrenCstyleIconWrapperProvider),
+				childrenCstyleIconProvider: computed(() => this.childrenCstyleIcon || this.childrenCstyleIconProvider),
+				childrenCstyleLinkProvider: computed(() => this.childrenCstyleLink || this.childrenCstyleLinkProvider),
+				childrenCstyleCaretWrapperProvider: computed(() => this.childrenCstyleCaretWrapper || this.childrenCstyleCaretWrapperProvider),
+				childrenCstyleCaretProvider: computed(() => this.childrenCstyleCaret || this.childrenCstyleCaretProvider),
+				childrenCstyleModalProvider: computed(() => this.childrenCstyleModalProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
 				center: computed(() => false),
 				orientation: computed(() => this.orientation),
@@ -336,7 +367,51 @@
 				type: [String, Object, Array],
 				default: ''
 			},
+			childrenCstyleItem: {
+				type: [String, Object, Array],
+				default: ''
+			},
 			wrapperCstyle: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			iconWrapperCstyle: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			iconCstyle: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			linkCstyle: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			caretWrapperCstyle: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			caretCstyle: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			childrenCstyleIconWrapper: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			childrenCstyleIcon: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			childrenCstyleLink: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			childrenCstyleCaretWrapper: {
+				type: [String, Object, Array],
+				default: ''
+			},
+			childrenCstyleCaret: {
 				type: [String, Object, Array],
 				default: ''
 			},
@@ -379,43 +454,32 @@
 			},
 			cstyleString() {
 				// Handle both raw values and Vue refs (childrenCstyleProvider is a computed ref from Navigator)
-				let providerValue = this.childrenCstyleProvider;
+				// Use modal provider when in small/modal mode
+				const isSmall = this.small && typeof this.small === 'object' && 'value' in this.small ? this.small.value : this.small;
+				let providerValue = isSmall && this.childrenCstyleModalProvider ? this.childrenCstyleModalProvider : this.childrenCstyleProvider;
 				// Unwrap if it's a ref
 				if (providerValue && typeof providerValue === 'object' && 'value' in providerValue) {
 					providerValue = providerValue.value;
 				}
-				const style = this.cstyle || providerValue;
-				if (!style) return '';
-				if (typeof style === 'string') return style;
-				if (Array.isArray(style)) {
-					return style.map(item => {
-							if (typeof item === 'string') return item;
-							return Object.entries(item)
-								.map(([key, value]) => `${key}:${value}`)
-								.join('; ');
-						})
-						.join('; ');
-				}
-				return Object.entries(style)
-					.map(([key, value]) => `${key}:${value}`)
-					.join('; ');
+				return this.normalizeCstyle(this.cstyle || providerValue);
 			},
 			wrapperCstyleString() {
-				const style = this.wrapperCstyle || this.wrapperCstyleProvider;
-				if (!style) return '';
-				if (typeof style === 'string') return style;
-				if (Array.isArray(style)) {
-					return style.map(item => {
-							if (typeof item === 'string') return item;
-							return Object.entries(item)
-								.map(([key, value]) => `${key}:${value}`)
-								.join('; ');
-						})
-						.join('; ');
-				}
-				return Object.entries(style)
-					.map(([key, value]) => `${key}:${value}`)
-					.join('; ');
+				return this.normalizeCstyle(this.wrapperCstyle || this.wrapperCstyleProvider);
+			},
+			iconWrapperCstyleString() {
+				return this.normalizeCstyle(this.iconWrapperCstyle || this.iconWrapperCstyleProvider);
+			},
+			iconCstyleString() {
+				return this.normalizeCstyle(this.iconCstyle || this.iconCstyleProvider);
+			},
+			linkCstyleString() {
+				return this.normalizeCstyle(this.linkCstyle || this.linkCstyleProvider);
+			},
+			caretWrapperCstyleString() {
+				return this.normalizeCstyle(this.caretWrapperCstyle || this.caretWrapperCstyleProvider);
+			},
+			caretCstyleString() {
+				return this.normalizeCstyle(this.caretCstyle || this.caretCstyleProvider);
 			},
 			stateArray() {
 				const states = [];
@@ -439,32 +503,26 @@
 			computedStyle() {
 				const baseStyle = {};
 				baseStyle['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
-				if (!this.cstyleString) return baseStyle;
-
-				const parsed = parse(this.cstyleString);
-				const cstyleResult = getStyle(parsed, {
-					theme: this.$theme,
-					breakpoint: this.$breakpoint,
-					states: this.stateArray,
-					breakpointStrategy: this.breakpointStrategy,
-					themeStrategy: this.themeStrategy
-				});
-				const cstyleObject = this.cssStringToObject(cstyleResult);
-
+				const cstyleObject = this.computeCstyleToStyleObject(this.cstyleString);
 				return { ...baseStyle, ...cstyleObject };
 			},
 			wrapperStyle() {
-				if (!this.wrapperCstyleString) return {};
-				const parsed = parse(this.wrapperCstyleString);
-				const cstyleResult = getStyle(parsed, {
-					theme: this.$theme,
-					breakpoint: this.$breakpoint,
-					states: this.stateArray,
-					breakpointStrategy: 'mobile-first',
-					themeStrategy: 'fallback'
-				});
-				// Convert CSS string to object for Vue style binding
-				return this.cssStringToObject(cstyleResult);
+				return this.computeCstyleToStyleObject(this.wrapperCstyleString);
+			},
+			iconWrapperStyle() {
+				return this.computeCstyleToStyleObject(this.iconWrapperCstyleString);
+			},
+			iconStyle() {
+				return this.computeCstyleToStyleObject(this.iconCstyleString);
+			},
+			linkStyle() {
+				return this.computeCstyleToStyleObject(this.linkCstyleString);
+			},
+			caretWrapperStyle() {
+				return this.computeCstyleToStyleObject(this.caretWrapperCstyleString);
+			},
+			caretStyle() {
+				return this.computeCstyleToStyleObject(this.caretCstyleString);
 			},
 			currentPath() {
 				// Get current path from router or window.location
@@ -563,6 +621,34 @@
 			}
 		},
 		methods: {
+			normalizeCstyle(cstyle) {
+				if (!cstyle) return '';
+				if (typeof cstyle === 'string') return cstyle;
+				if (Array.isArray(cstyle)) {
+					return cstyle.map(item => {
+							if (typeof item === 'string') return item;
+							return Object.entries(item)
+								.map(([key, value]) => `${key}:${value}`)
+								.join('; ');
+						})
+						.join('; ');
+				}
+				return Object.entries(cstyle)
+					.map(([key, value]) => `${key}:${value}`)
+					.join('; ');
+			},
+			computeCstyleToStyleObject(cstyleString) {
+				if (!cstyleString) return {};
+				const parsed = parse(cstyleString);
+				const cstyleResult = getStyle(parsed, {
+					theme: this.$theme,
+					breakpoint: this.$breakpoint,
+					states: this.stateArray,
+					breakpointStrategy: this.breakpointStrategy,
+					themeStrategy: this.themeStrategy
+				});
+				return this.cssStringToObject(cstyleResult);
+			},
 			toggle(forceOpen = false) {
 				if (forceOpen) {
 					this.show = true;
