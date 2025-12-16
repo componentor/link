@@ -108,7 +108,8 @@
 	} from 'vue';
 	import {
 		parse,
-		getStyle
+		getStyle,
+		mergeCstyle
 	} from '@componentor/breakpoint';
 	export default {
 		inject: {
@@ -461,25 +462,25 @@
 				if (providerValue && typeof providerValue === 'object' && 'value' in providerValue) {
 					providerValue = providerValue.value;
 				}
-				return this.normalizeCstyle(this.cstyle || providerValue);
+				return mergeCstyle(providerValue, this.cstyle);
 			},
 			wrapperCstyleString() {
-				return this.normalizeCstyle(this.wrapperCstyle || this.wrapperCstyleProvider);
+				return mergeCstyle(this.wrapperCstyleProvider, this.wrapperCstyle);
 			},
 			iconWrapperCstyleString() {
-				return this.normalizeCstyle(this.iconWrapperCstyle || this.iconWrapperCstyleProvider);
+				return mergeCstyle(this.iconWrapperCstyleProvider, this.iconWrapperCstyle);
 			},
 			iconCstyleString() {
-				return this.normalizeCstyle(this.iconCstyle || this.iconCstyleProvider);
+				return mergeCstyle(this.iconCstyleProvider, this.iconCstyle);
 			},
 			linkCstyleString() {
-				return this.normalizeCstyle(this.linkCstyle || this.linkCstyleProvider);
+				return mergeCstyle(this.linkCstyleProvider, this.linkCstyle);
 			},
 			caretWrapperCstyleString() {
-				return this.normalizeCstyle(this.caretWrapperCstyle || this.caretWrapperCstyleProvider);
+				return mergeCstyle(this.caretWrapperCstyleProvider, this.caretWrapperCstyle);
 			},
 			caretCstyleString() {
-				return this.normalizeCstyle(this.caretCstyle || this.caretCstyleProvider);
+				return mergeCstyle(this.caretCstyleProvider, this.caretCstyle);
 			},
 			stateArray() {
 				const states = [];
@@ -621,22 +622,6 @@
 			}
 		},
 		methods: {
-			normalizeCstyle(cstyle) {
-				if (!cstyle) return '';
-				if (typeof cstyle === 'string') return cstyle;
-				if (Array.isArray(cstyle)) {
-					return cstyle.map(item => {
-							if (typeof item === 'string') return item;
-							return Object.entries(item)
-								.map(([key, value]) => `${key}:${value}`)
-								.join('; ');
-						})
-						.join('; ');
-				}
-				return Object.entries(cstyle)
-					.map(([key, value]) => `${key}:${value}`)
-					.join('; ');
-			},
 			computeCstyleToStyleObject(cstyleString) {
 				if (!cstyleString) return {};
 				const parsed = parse(cstyleString);
