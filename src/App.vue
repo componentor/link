@@ -1,9 +1,9 @@
 <template>
-	<Box
+	<component
+		:is="tag || 'div'"
 		v-bind="$attrs"
 		:class="rootClass"
-		:expand="expand ? '{`default`:{`xs`:{`light`:true}}}' : ''"
-		:style="style"
+		:style="computedStyle"
 		:title="route"
 		ref="navitem"
 		class="vp-navigator-item"
@@ -19,31 +19,35 @@
 	>
 		<component
 			v-if="icon"
-			:is="tag || (external ? 'a' : 'router-link')"
+			:is="linkTag"
 			:to="external ? undefined : (route || '')"
 			:href="!external ? undefined : (route || '')"
 			:target="target"
 			class="vp-navigator-item--link"
 			style="display:inline-flex;align-items:center"
+			:style="{
+				...iconWrapperStyle
+			}"
 		>
 			<div
 				:style="{
 					'background-image': $icon,
-					'width': $iconSize
+					'width': $iconSize,
+					...iconStyle
 				}"
 				style="background-repeat:no-repeat;background-size:contain;background-position:center;aspect-ratio:1/1"
 			/>
 		</component>
 		<component
 			class="vp-navigator-item--link"
-			:is="tag || (external ? 'a' : 'router-link')"
+			:is="linkTag"
 			:to="external ? undefined : (route || '')"
 			:href="!external ? undefined : (route || '')"
 			:target="target"
 			:style="{
 				marginLeft: $verticalLeftIndent,
 				marginRight: $verticalRightIndent,
-				justifyContent: style.justifyContent,
+				...labelStyle
 			}"
 			style="white-space: nowrap;display:inline-flex;align-items:center;flex-grow:1"
 		>
@@ -54,11 +58,15 @@
 			@click.stop="toggle()"
 			class="vp-navigator-item--link vp-navigator-item--arrow"
 			style="display:inline-flex;align-items:center"
+			:style="{
+				...caretWrapperStyle
+			}"
 		>
 			<div
 				:style="{
 					'background-image': $caret,
-					'width': $caretSize
+					'width': $caretSize,
+					...caretStyle
 				}"
 				style="background-repeat:no-repeat;background-size:contain;background-position:center;aspect-ratio:1/1"
 			/>
@@ -71,13 +79,13 @@
 				}"
 				:style="{
 					'z-index': level ? level + 1 : 1,
-					...wrapperStyle
+					...dropdownStyle
 				}"
 			>
 				<slot />
 			</div>
 		</template>
-	</Box>
+	</component>
 	<template v-if="$vertical">
 		<div
 			v-show="$slots.default && (show || forceOpen || forceOpenProvider)"
@@ -87,7 +95,7 @@
 			}"
 			:style="{
 				'z-index': level ? level + 1 : 1,
-				...wrapperStyle
+				...dropdownStyle
 			}"
 		>
 			<slot />
@@ -98,15 +106,52 @@
 	import {
 		computed
 	} from 'vue';
-	import Box from '@vueplayio/box';
+	import {
+		parse,
+		getStyle,
+		mergeAdapt
+	} from '@componentor/adaptive';
 	export default {
-		inject: ['path', 'pathId', 'setPath', 'theme', 'breakpoint', 'small', 'open', 'forceOpenProvider', 'direction', 'center', 'orientation', 'drop', 'level', 'order', 'reverseIcon', 'childrenIconSizeProvider', 'childrenCaretProvider', 'childrenCaretSizeProvider', 'borderRadiusDropProvider', 'backgroundDropAreaProvider', 'model'],
+		inject: {
+			path: { default: undefined },
+			pathId: { default: undefined },
+			setPath: { default: undefined },
+			theme: { default: '' },
+			breakpoint: { default: '' },
+			small: { default: false },
+			open: { default: undefined },
+			forceOpenProvider: { default: false },
+			direction: { default: '' },
+			center: { default: '' },
+			orientation: { default: '' },
+			drop: { default: '' },
+			level: { default: 0 },
+			order: { default: 'odd' },
+			reverseIcon: { default: false },
+			childrenIconSizeProvider: { default: '' },
+			childrenCaretProvider: { default: '' },
+			childrenCaretSizeProvider: { default: '' },
+			childrenAdaptProvider: { default: '' },
+			adaptProvider: { default: '' },
+			dropdownAdaptProvider: { default: '' },
+			iconWrapperAdaptProvider: { default: '' },
+			iconAdaptProvider: { default: '' },
+			labelAdaptProvider: { default: '' },
+			caretWrapperAdaptProvider: { default: '' },
+			caretAdaptProvider: { default: '' },
+			childrenIconWrapperAdaptProvider: { default: '' },
+			childrenIconAdaptProvider: { default: '' },
+			childrenLabelAdaptProvider: { default: '' },
+			childrenCaretWrapperAdaptProvider: { default: '' },
+			childrenCaretAdaptProvider: { default: '' },
+			modalAdaptProvider: { default: '' },
+			model: { default: () => ({}) }
+		},
 		provide() {
 			const self = this;
 			return {
 				setPath(path, id) {
 					if (self.currentPathId !== id) {
-						self.currentPath = path;
 						self.currentPathId = id;
 						if (typeof self.setPath === 'function') {
 							self.setPath(path, id);
@@ -118,92 +163,36 @@
 				level: computed(() => this.level ? this.level + 1 : 1),
 				order: computed(() => this.order === 'odd' ? 'even' : 'odd'),
 				reverseIcon: computed(() => !this.iconReverse && !this.childrenIconReverse ? this.reverseIcon : this.childrenIconReverse ? this.childrenIconReverse === 'true' : this.iconReverse === 'true'),
+				
+				// adapt providers
+				dropdownAdaptProvider: computed(() => mergeAdapt(this.adaptDropdown, this.dropdownAdaptProvider)),
+				modalAdaptProvider: computed(() => this.modalAdaptProvider),
+
+				// This providers should provide in the given value order: child, current, parent, parent parent
+				adaptProvider: computed(() => mergeAdapt(this.childrenAdapt, this.adapt, this.childrenAdaptProvider, this.adaptProvider)),
+				iconWrapperAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptIconWrapper, this.adaptIconWrapper, this.childrenIconWrapperAdaptProvider, this.iconWrapperAdaptProvider)),
+				iconAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptIcon, this.adaptIcon, this.childrenIconAdaptProvider, this.iconAdaptProvider)),
+				labelAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptLabel, this.adaptLabel, this.childrenLabelAdaptProvider, this.labelAdaptProvider)),
+				caretWrapperAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptCaretWrapper, this.adaptCaretWrapper, this.childrenCaretWrapperAdaptProvider, this.caretWrapperAdaptProvider)),
+				caretAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptCaret, this.adaptCaret, this.childrenCaretAdaptProvider, this.caretAdaptProvider)),
+
+				// Discard adapt child provisions (only used with Navigator parent wrapper)
+				childrenAdaptProvider: computed(() => ''),
+				childrenIconWrapperAdaptProvider: computed(() => ''),
+				childrenIconAdaptProvider: computed(() => ''),
+				childrenLabelAdaptProvider: computed(() => ''),
+				childrenCaretWrapperAdaptProvider: computed(() => ''),
+				childrenCaretAdaptProvider: computed(() => ''),
+
 				childrenIconSizeProvider: computed(() => this.childrenIconSize || this.childrenIconSizeProvider),
 				childrenCaretProvider: computed(() => this.childrenCaret || this.childrenCaretProvider),
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
-				borderRadiusDropProvider: computed(() => this.borderRadiusDrop || this.borderRadiusDropProvider),
-				backgroundDropAreaProvider: computed(() => this.backgroundDropArea || this.backgroundDropAreaProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
 				center: computed(() => false),
-				model: computed(() => {
-					const model = this.childModel;
-					if (this.childrenBorderRadius) {
-						try {
-							model.borderRadius = JSON.parse(this.childrenBorderRadius.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenGap) {
-						try {
-							model.gap = JSON.parse(this.childrenGap.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenVerticalLeftIndent) {
-						try {
-							model.verticalLeftIndent = JSON.parse(this.childrenVerticalLeftIndent.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenVerticalRightIndent) {
-						try {
-							model.verticalRightIndent = JSON.parse(this.childrenVerticalRightIndent.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenFontSize) {
-						try {
-							model.fontSize = JSON.parse(this.childrenFontSize.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenFontWeight) {
-						try {
-							model.fontWeight = JSON.parse(this.childrenFontWeight.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenColor) {
-						try {
-							model.color = JSON.parse(this.childrenColor.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenBackgroundColor) {
-						try {
-							model.backgroundColor = JSON.parse(this.childrenBackgroundColor.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenBackgroundImage) {
-						try {
-							model.backgroundImage = JSON.parse(this.childrenBackgroundImage.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenBorder) {
-						try {
-							model.border = JSON.parse(this.childrenBorder.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenMargin) {
-						try {
-							model.margin = JSON.parse(this.childrenMargin.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenPadding) {
-						try {
-							model.padding = JSON.parse(this.childrenPadding.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenTransform) {
-						try {
-							model.transform = JSON.parse(this.childrenTransform.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenWidth) {
-						try {
-							model.width = JSON.parse(this.childrenWidth.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					if (this.childrenHeight) {
-						try {
-							model.height = JSON.parse(this.childrenHeight.replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					return model;
-				})
+				orientation: computed(() => this.orientation),
+				small: computed(() => this.small),
+				theme: computed(() => this.theme),
+				breakpoint: computed(() => this.breakpoint)
 			};
 		},
 		props: {
@@ -376,839 +365,86 @@
 					value: 'false'
 				}]
 			},
-			expand: {
-				type: Boolean,
-				default: null
-			},
 			forceOpen: {
 				type: Boolean,
 				default: false
 			},
-			fontSize: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			// Current level styling
+			adapt: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			childrenFontSize: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			adaptIconWrapper: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			fontWeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			adaptIcon: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			childrenFontWeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			adaptLabel: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			color: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			adaptCaretWrapper: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			childrenColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			adaptCaret: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			backgroundDropArea: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			adaptDropdown: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			backgroundColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			// Children styling
+			childrenAdapt: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			backgroundColorDrop: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			childrenAdaptIconWrapper: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			childrenBackgroundColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			childrenAdaptIcon: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			backgroundImage: {
-				type: String,
-				default: '',
-				control: 'media',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			childrenAdaptLabel: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			childrenBackgroundImage: {
-				type: String,
-				default: '',
-				control: 'media',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			childrenAdaptCaretWrapper: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			gap: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+			childrenAdaptCaret: {
+				type: [String, Object, Array],
+				default: ''
 			},
-			childrenGap: {
+			breakpointStrategy: {
 				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
+				default: 'mobile-first',
+				validator: v => ['exact', 'mobile-first', 'desktop-first'].includes(v)
 			},
-			width: {
+			themeStrategy: {
 				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			minWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			maxWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			height: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenHeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			minHeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			maxHeight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			border: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenBorder: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRightColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderLeftColor: {
-				type: String,
-				default: '',
-				control: 'color',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRightWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderLeftWidth: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRightStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderLeftStyle: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'none',
-					key: 'none'
-				}, {
-					value: 'hidden',
-					key: 'hidden'
-				}, {
-					value: 'solid',
-					key: 'solid'
-				}, {
-					value: 'dashed',
-					key: 'dashed'
-				}, {
-					value: 'dotted',
-					key: 'dotted'
-				}, {
-					value: 'double',
-					key: 'double'
-				}, {
-					value: 'groove',
-					key: 'groove'
-				}, {
-					value: 'ridge',
-					key: 'ridge'
-				}, {
-					value: 'inset',
-					key: 'inset'
-				}, {
-					value: 'outset',
-					key: 'outset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenBorderRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRadiusDrop: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopLeftRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderTopRightRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomRightRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			borderBottomLeftRadius: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			padding: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenPadding: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			paddingTop: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			paddingRight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			paddingBottom: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			paddingLeft: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			margin: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			childrenMargin: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			marginTop: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			marginRight: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			marginBottom: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			marginLeft: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: 'px',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			justifyContent: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'flex-start',
-					key: 'flex-start'
-				}, {
-					value: 'flex-end',
-					key: 'flex-end'
-				}, {
-					value: 'center',
-					key: 'center'
-				}, {
-					value: 'space-between',
-					key: 'space-between'
-				}, {
-					value: 'space-around',
-					key: 'space-around'
-				}, {
-					value: 'space-evenly',
-					key: 'space-evenly'
-				}, {
-					value: 'stretch',
-					key: 'stretch'
-				}, {
-					value: 'normal',
-					key: 'normal'
-				}, {
-					value: 'start',
-					key: 'start'
-				}, {
-					value: 'end',
-					key: 'end'
-				}, {
-					value: 'left',
-					key: 'left'
-				}, {
-					value: 'right',
-					key: 'right'
-				}, {
-					value: 'inherit',
-					key: 'inherit'
-				}, {
-					value: 'initial',
-					key: 'initial'
-				}, {
-					value: 'revert',
-					key: 'revert'
-				}, {
-					value: 'revert-layer',
-					key: 'revert-layer'
-				}, {
-					value: 'unset',
-					key: 'unset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover', 'current', 'active', 'focus']
-			},
-			position: {
-				type: String,
-				default: '',
-				options: [{
-					value: '',
-					key: 'Clear'
-				}, {
-					value: 'relative',
-					key: 'relative'
-				}, {
-					value: 'absolute',
-					key: 'absolute'
-				}, {
-					value: 'fixed',
-					key: 'fixed'
-				}, {
-					value: 'sticky',
-					key: 'sticky'
-				}, {
-					value: 'revert',
-					key: 'revert'
-				}, {
-					value: 'static',
-					key: 'static'
-				}, {
-					value: 'initial',
-					key: 'initial'
-				}, {
-					value: 'inherit',
-					key: 'inherit'
-				}, {
-					value: 'unset',
-					key: 'unset'
-				}],
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover']
-			},
-			filter: {
-				type: String,
-				default: '',
-				control: 'slider',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover'],
-				sizer: true
-			},
-			zoom: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: '%',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover'],
-				sizer: true
-			},
-			transform: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: '%',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover'],
-				sizer: true
-			},
-			childrenTransform: {
-				type: String,
-				default: '',
-				control: 'slider',
-				unit: '%',
-				breakpoints: ['xs', 'sm', 'md', 'lg', 'xl', '2xl'],
-				themes: ['light', 'dark'],
-				groups: ['default', 'hover'],
-				sizer: true
+				default: 'fallback',
+				validator: v => ['strict', 'fallback'].includes(v)
 			}
 		},
-		components: {
-			Box: Box
-		},
 		data: () => ({
-			currentPath: '',
 			currentPathId: '',
 			show: false,
-			childModel: {},
 			hover: false,
 			active: false,
-			focus: false,
-			wrapperStyle: {
-				borderRadius: undefined,
-				background: undefined
-			},
-			windowWidth: typeof global !== 'undefined' ? global?.windowWidth || 1280 : 1280
+			focus: false
 		}),
 		mounted() {
 			document.addEventListener('click', this.handleClickOutside);
-			if (this.$vertical && this.route && (this.$route?.path === this.route || this.$route?.path.startsWith((this.route + '/')
+			const currentPath = this.currentPath;
+			if (this.$vertical && this.route && currentPath && (currentPath === this.route || currentPath.startsWith((this.route + '/')
 					.replace('//', '/'))) && !this.show) {
 				this.toggle(true);
 			}
@@ -1217,41 +453,133 @@
 			document.removeEventListener('click', this.handleClickOutside);
 		},
 		computed: {
-			bpoint() {
-				if (this.breakpoint) return this.breakpoint;
-				if (this.windowWidth < 640) return 'xs';
-				if (this.windowWidth < 768) return 'sm';
-				if (this.windowWidth < 1024) return 'md';
-				if (this.windowWidth < 1280) return 'lg';
-				if (this.windowWidth < 1536) return 'xl';
-				return '2xl';
+			caretFallbackIcon() {
+				if (this.$theme === 'dark') return "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0iI2ZmZiIgY2xhc3M9InNpemUtNiI+PHBhdGggc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBkPSJtOC4yNSA0LjUgNy41IDcuNS03LjUgNy41Ii8+PC9zdmc+')"
+				return "url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBjbGFzcz0ic2l6ZS02Ij4KICA8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Im04LjI1IDQuNSA3LjUgNy41LTcuNSA3LjUiIC8+Cjwvc3ZnPg==')"
+			},
+			linkTag() {
+				return this.tag || (this.external ? 'a' : 'router-link');
+			},
+			adaptString() {
+				// Handle both raw values and Vue refs (adaptProvider is a computed ref from Navigator or Parent Link)
+				// Use modal provider when in small/modal mode
+				const isSmall = this.small && typeof this.small === 'object' && 'value' in this.small ? this.small.value : this.small;
+				let providerValue = isSmall && this.modalAdaptProvider ? this.modalAdaptProvider : this.adaptProvider;
+				// Unwrap if it's a ref
+				if (providerValue && typeof providerValue === 'object' && 'value' in providerValue) {
+					providerValue = providerValue.value;
+				}
+				return mergeAdapt(this.adapt, providerValue);
+			},
+			childrenAdaptString() {
+				// Handle both raw values and Vue refs (childrenAdaptProvider is a computed ref from Navigator or Parent Link)
+				// Use modal provider when in small/modal mode
+				const isSmall = this.small && typeof this.small === 'object' && 'value' in this.small ? this.small.value : this.small;
+				let providerValue = isSmall && this.modalAdaptProvider ? this.modalAdaptProvider : mergeAdapt(this.childrenAdaptProvider, this.adaptProvider);
+				// Unwrap if it's a ref
+				if (providerValue && typeof providerValue === 'object' && 'value' in providerValue) {
+					providerValue = providerValue.value;
+				}
+				return mergeAdapt(this.childrenAdapt, this.adapt, providerValue);
+			},
+			dropdownAdaptString() {
+				return mergeAdapt(this.adaptDropdown, this.dropdownAdaptProvider);
+			},
+			iconWrapperAdaptString() {
+				return mergeAdapt(this.adaptIconWrapper, this.iconWrapperAdaptProvider);
+			},
+			iconAdaptString() {
+				return mergeAdapt(this.adaptIcon, this.iconAdaptProvider);
+			},
+			labelAdaptString() {
+				return mergeAdapt(this.adaptLabel, this.labelAdaptProvider);
+			},
+			caretWrapperAdaptString() {
+				return mergeAdapt(this.adaptCaretWrapper, this.caretWrapperAdaptProvider);
+			},
+			caretAdaptString() {
+				return mergeAdapt(this.adaptCaret, this.caretAdaptProvider);
+			},
+			stateArray() {
+				const states = [];
+				if (this.current) states.push('current');
+				if (this.hover) states.push('hover');
+				if (this.active) states.push('active');
+				if (this.focus) states.push('focus');
+				return states;
+			},
+			// Helper to unwrap Vue refs from injected computed values
+			$theme() {
+				const val = this.theme;
+				if (val && typeof val === 'object' && 'value' in val) return val.value;
+				return val || '';
+			},
+			$breakpoint() {
+				const val = this.breakpoint;
+				if (val && typeof val === 'object' && 'value' in val) return val.value;
+				return val || '';
+			},
+			computedStyle() {
+				const baseStyle = {};
+				baseStyle['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
+				const adaptObject = this.computeAdaptToStyleObject(this.adaptString);
+				return { ...baseStyle, ...adaptObject };
+			},
+			dropdownStyle() {
+				return this.computeAdaptToStyleObject(this.dropdownAdaptString);
+			},
+			iconWrapperStyle() {
+				return this.computeAdaptToStyleObject(this.iconWrapperAdaptString);
+			},
+			iconStyle() {
+				return this.computeAdaptToStyleObject(this.iconAdaptString);
+			},
+			labelStyle() {
+				return this.computeAdaptToStyleObject(this.labelAdaptString);
+			},
+			caretWrapperStyle() {
+				return this.computeAdaptToStyleObject(this.caretWrapperAdaptString);
+			},
+			caretStyle() {
+				return this.computeAdaptToStyleObject(this.caretAdaptString);
+			},
+			currentPath() {
+				// Get current path from router or window.location
+				// Access $route.path directly to ensure reactivity tracking
+				if (this.$route?.path) return this.$route.path;
+				if (this.$router?.currentRoute?.value?.path) return this.$router.currentRoute.value.path;
+				if (typeof window !== 'undefined') return window.location.pathname;
+				return '';
 			},
 			current() {
+				const currentPath = this.currentPath;
+				if (!currentPath) return false;
 				let route = this.route?.replace(/^\/|\/$/g, '');
-				let path = this.$route?.path?.replace(/^\/|\/$/g, '');
-				if (typeof this.setPath === 'undefined') return false;
+				let path = currentPath.replace(/^\/|\/$/g, '');
+				// If this is a parent link with children and no route, don't mark as current
 				if (!route && this.$slots.default) return false;
-				if (route && path.startsWith((route + '/')
-						.replace('//', '/'))) return true;
-				return route && route === path || !route && this.$route?.path === '/' || route === '/' && !this.$route?.path;
-			},
-			group() {
-				if (this.current) return 'current';
-				if (this.active) return 'active';
-				if (this.hover) return 'hover';
-				if (this.focus) return 'focus';
-				return 'default';
+				// Exact match
+				if (route === path) return true;
+				// Home route special case
+				if (!route && path === '') return true;
+				if (route === '/' && path === '') return true;
+				// Match parent routes for dynamic/nested routes
+				// e.g. /dashboard matches /dashboard/settings
+				if (route && path.startsWith(route + '/')) return true;
+				return false;
 			},
 			$vertical() {
 				return !this.horizontal || this.small;
 			},
 			$verticalLeftIndent() {
-				if (!this.$vertical || !this.level || !this.verticalLeftIndent && !this.model?.verticalLeftIndent) return undefined;
-				return `calc(${this.verticalLeftIndent || this.model.verticalLeftIndent} * ${this.level})`;
+				const indent = this.verticalLeftIndent || this.model?.verticalLeftIndent;
+				if (!this.$vertical || !this.level || !indent) return undefined;
+				return `calc(${indent} * ${this.level})`;
 			},
 			$verticalRightIndent() {
-				if (!this.$vertical || !this.level || !this.verticalRightIndent && !this.model?.verticalRightIndent) return undefined;
-				return `calc(${this.verticalRightIndent || this.model.verticalRightIndent} * ${this.level})`;
+				const indent = this.verticalRightIndent || this.model?.verticalRightIndent;
+				if (!this.$vertical || !this.level || !indent) return undefined;
+				return `calc(${indent} * ${this.level})`;
 			},
 			$iconSize() {
 				if (this.iconSize) return this.iconSize;
@@ -1259,11 +587,11 @@
 				return '20px';
 			},
 			$icon() {
-				if (!this.$style?.icon) return null;
-				if (this.$style.icon?.startsWith('--')) {
-					return `var(${this.$style.icon})`;
+				if (!this.icon) return null;
+				if (this.icon?.startsWith('--')) {
+					return `var(${this.icon})`;
 				} else {
-					return `url(${this.$style.icon})`;
+					return `url(${this.icon})`;
 				}
 			},
 			$caret() {
@@ -1279,16 +607,6 @@
 				if (this.childrenCaretSizeProvider) return this.childrenCaretSizeProvider;
 				return '20px';
 			},
-			$borderRadiusDrop() {
-				if (this.borderRadiusDrop) return this.borderRadiusDrop;
-				if (this.borderRadiusDropProvider) return this.borderRadiusDropProvider;
-				return '';
-			},
-			$backgroundDropArea() {
-				if (this.backgroundDropArea) return this.backgroundDropArea;
-				if (this.backgroundDropAreaProvider) return this.backgroundDropAreaProvider;
-				return '';
-			},
 			horizontal() {
 				return this.orientation === 'Row';
 			},
@@ -1303,179 +621,13 @@
 					'vp-navigator-item--direction-right': this.itemDirection ? this.itemDirection === 'right' : this.direction === 'right',
 					'vp-navigator-item--center': this.centerDropdown ? this.centerDropdown === 'true' : this.center === 'true',
 					'vp-navigator-item--drop-up': this.drop === 'up',
-					'vp-navigator-item--reverse': this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true'
+					'vp-navigator-item--reverse': this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true',
+					'vp-navigator-item--current': this.current
 				};
 				const level = this.level || 0;
 				rootClass[`vp-navigator-item--level-${level}`] = true;
 				rootClass[`vp-navigator-item--${this.order}`] = true;
 				return rootClass;
-			},
-			style() {
-				this.childModel = {
-					verticalLeftIndent: this.verticalLeftIndent || this.model?.verticalLeftIndent,
-					verticalRightIndent: this.verticalRightIndent || this.model?.verticalRightIndent
-				};
-				const style = {};
-				const props = ['$borderRadiusDrop', '$backgroundDropArea', 'filter', 'position', 'justifyContent', 'fontSize', 'fontWeight', 'color', 'backgroundColor', 'backgroundColorDrop', 'gap', 'backgroundImage', 'width', 'minWidth', 'maxWidth', 'height', 'minHeight', 'maxHeight', 'border', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor', 'borderWidth', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'borderTopStyle', 'borderRightStyle', 'borderBottomStyle', 'borderLeftStyle', 'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomRightRadius', 'borderBottomLeftRadius', 'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft', 'zoom', 'transform'];
-				const groups = ['default', 'hover', 'current', 'active', 'focus'];
-				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
-				const themes = [this.theme || 'light', ...['light', 'dark'].filter(t => t !== (this.theme || 'light'))];
-				for (let prop of props) {
-					let priority = {};
-					if (this[prop]) {
-						try {
-							priority = JSON.parse(this[prop].replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					const fallback = this.model?.[prop] || {};
-					const merge = {};
-					for (const group of [...new Set([...Object.keys(priority), ...Object.keys(fallback)])]) {
-						const pri = priority?.[group] || {};
-						const fb = fallback?.[group] || {};
-						merge[group] = {};
-						for (const breakpoint of [...new Set([...Object.keys(pri), ...Object.keys(fb)])]) {
-							const p = pri?.[breakpoint] || {};
-							const f = fb?.[breakpoint] || {};
-							merge[group][breakpoint] = {};
-							for (const theme of [...new Set([...Object.keys(p), ...Object.keys(f)])]) {
-								const value = p?.[theme]?.toString() || f?.[theme]?.toString() || null;
-								merge[group][breakpoint][theme] = value;
-							}
-						}
-					}
-					const groups = Object.keys(merge);
-					if (groups.length) {
-						for (const theme of themes) {
-							style[prop] = merge?.['default']?.['xs']?.[theme];
-							if (typeof style[prop] !== 'undefined' && style[prop] !== null && style[prop] !== '') {
-								break;
-							}
-						}
-						let limit = this.breakpoint || '2xl';
-						let match = false;
-						for (const breakpoint of breakpoints) {
-							for (const theme of themes) {
-								let value = merge?.[this.group]?.[breakpoint]?.[theme]?.toString();
-								if (typeof value !== 'undefined' && value !== null && value !== '') {
-									let important = priority?.[this.group]?.[breakpoint]?.[theme]?.toString() === value;
-									match = true;
-									style[prop] = value + (important ? '!important' : '');
-									style[prop] = style[prop].replace('!important!important', '!important');
-									break;
-								}
-							}
-							if (breakpoint === limit) break;
-						}
-						if (!match && this.group !== 'default') {
-							limit = this.breakpoint || '2xl';
-							for (const breakpoint of breakpoints) {
-								for (const theme of themes) {
-									let value = merge?.['default']?.[breakpoint]?.[theme]?.toString();
-									if (typeof value !== 'undefined' && value !== null && value !== '') {
-										let important = priority?.['default']?.[breakpoint]?.[theme]?.toString() === value;
-										match = true;
-										style[prop] = value + (important ? '!important' : '');
-										style[prop] = style[prop].replace('!important!important', '!important');
-										break;
-									}
-								}
-								if (breakpoint === limit) break;
-							}
-						}
-						this.childModel[prop] = merge;
-					}
-				}
-				style['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
-				if (style['backgroundColorDrop'] && !style['backgroundColor']?.includes('!important')) {
-					let fill = false;
-					if (this.level < 1 && (this.forceOpen || this.forceOpenProvider || this.small)) {
-						const bg = style['backgroundColor'];
-						const isTransparent = !bg || bg === 'transparent' || /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)$/i.test(bg) || /^hsla?\(\s*\d+\s*,\s*[\d.]+%\s*,\s*[\d.]+%\s*,\s*0\s*\)$/i.test(bg) || /^#(?:[0-9a-f]{2}){3}00$/i.test(bg) || /^#(?:[0-9a-f]{4}|[0-9a-f]{8})$/i.test(bg) && bg.slice(-2)
-							.toLowerCase() === '00';
-						fill = isTransparent;
-					}
-					if (this.level >= 1 || fill) {
-						style['backgroundColor'] = style['backgroundColorDrop'];
-					}
-					delete style['backgroundColorDrop'];
-				}
-				if (style?.['filter']?.includes('!important')) {
-					style['filter'] = style['filter'].replace('!important', '');
-				}
-				if (style?.$borderRadiusDrop) {
-					this.wrapperStyle.borderRadius = style.$borderRadiusDrop;
-				}
-				if (style?.$backgroundDropArea) {
-					this.wrapperStyle.background = style.$backgroundDropArea;
-				} else {
-					this.wrapperStyle.background = style.backgroundColor;
-				}
-				delete style.$borderRadiusDrop;
-				delete style.$backgroundDropArea;
-				return style;
-			},
-			$style() {
-				const style = {};
-				const props = ['icon'];
-				const groups = ['default', 'hover'];
-				const breakpoints = ['xs', 'sm', 'md', 'lg', 'xl', '2xl'];
-				const themes = ['light', 'dark'];
-				for (const prop of props) {
-					let priority = {};
-					if (this[prop]) {
-						try {
-							priority = JSON.parse(this[prop].replaceAll('`', '"'));
-						} catch (e) {}
-					}
-					const merge = {};
-					for (const group of Object.keys(priority)) {
-						const pri = priority?.[group] || {};
-						merge[group] = {};
-						for (const breakpoint of Object.keys(pri)) {
-							const p = pri?.[breakpoint] || {};
-							merge[group][breakpoint] = {};
-							for (const theme of Object.keys(p)) {
-								const value = p?.[theme]?.toString() || null;
-								merge[group][breakpoint][theme] = value;
-							}
-						}
-					}
-					const groups = Object.keys(merge);
-					if (groups.length) {
-						style[prop] = merge?.['default']?.['xs']?.['light'];
-						let limitReached = false;
-						let limit = this.bpoint || 'xs';
-						let match = false;
-						for (const breakpoint of breakpoints) {
-							if (!limitReached) {
-								const firstPriority = merge?.[this.group]?.[breakpoint]?.[this.theme]?.toString();
-								const secondPriority = merge?.[this.group]?.[breakpoint]?.['light']?.toString();
-								const value = firstPriority || secondPriority;
-								if (value) {
-									style[prop] = value;
-									match = true;
-								}
-								limitReached = breakpoint === limit;
-							}
-						}
-						if (!match && this.group !== 'default') {
-							limitReached = false;
-							limit = this.bpoint || 'xs';
-							for (const breakpoint of breakpoints) {
-								if (!limitReached) {
-									const firstPriority = merge?.['default']?.[breakpoint]?.[this.theme]?.toString();
-									const secondPriority = merge?.['default']?.[breakpoint]?.['light']?.toString();
-									const value = firstPriority || secondPriority;
-									if (value) {
-										style[prop] = value;
-									}
-									limitReached = breakpoint === limit;
-								}
-							}
-						}
-					}
-				}
-				return style;
 			}
 		},
 		watch: {
@@ -1488,6 +640,18 @@
 			}
 		},
 		methods: {
+			computeAdaptToStyleObject(adaptString) {
+				if (!adaptString) return {};
+				const parsed = parse(adaptString);
+				const adaptResult = getStyle(parsed, {
+					theme: this.$theme,
+					breakpoint: this.$breakpoint,
+					states: this.stateArray,
+					breakpointStrategy: this.breakpointStrategy,
+					themeStrategy: this.themeStrategy
+				});
+				return this.cssStringToObject(adaptResult);
+			},
 			toggle(forceOpen = false) {
 				if (forceOpen) {
 					this.show = true;
@@ -1495,17 +659,16 @@
 					this.show = !this.show;
 				}
 				if (this.show) {
-					this.currentPath = this.route;
 					this.currentPathId = [...Array(8)].map(() => Math.random()
 							.toString(36)[2])
 						.join('');
 					if (typeof this.setPath === 'function') {
-						this.setPath(this.currentPath, this.currentPathId);
+						this.setPath(this.route, this.currentPathId);
 					}
 				}
 			},
 			handleClickOutside(event) {
-				if (!this.$vertical && this.show && this.$refs.navitem && !this.$refs.navitem.$el.contains(event.target)) {
+				if (!this.$vertical && this.show && this.$refs.navitem && !this.$refs.navitem.contains(event.target)) {
 					this.show = false;
 				}
 			},
@@ -1522,6 +685,65 @@
 				} else {
 					window.open(route, target || (shouldOpenInNewTab ? '_blank' : '_self'));
 				}
+			},
+			cssStringToObject(cssString) {
+				if (!cssString || typeof cssString !== 'string') return {};
+				const result = {};
+				// Split by semicolon and process each declaration
+				const declarations = cssString.split(';').map(s => s.trim()).filter(s => s.length > 0);
+				for (const declaration of declarations) {
+					// Find the first colon to split property and value
+					const colonIndex = declaration.indexOf(':');
+					if (colonIndex === -1) continue;
+					const property = declaration.substring(0, colonIndex).trim();
+					const value = declaration.substring(colonIndex + 1).trim();
+					if (property && value) {
+						result[property] = value;
+					}
+				}
+				return result;
+			},
+			// Extract styles prefixed with 'current:' since @componentor/adaptive
+			// doesn't recognize 'current' as a valid state (only CSS pseudo-classes)
+			extractCurrentStyles(adaptString) {
+				if (!adaptString) return {};
+				const result = {};
+				const declarations = adaptString.split(';').map(s => s.trim()).filter(s => s.length > 0);
+				const isDark = this.theme === 'dark' || (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+
+				for (const declaration of declarations) {
+					const parts = declaration.split(':').map(p => p.trim());
+					if (parts.length < 3) continue;
+
+					// Check if first part is 'current'
+					if (parts[0] !== 'current') continue;
+
+					// Handle current:dark:property:value or current:property:value
+					if (parts[1] === 'dark' && parts.length >= 4) {
+						// current:dark:property:value - only apply in dark mode
+						if (isDark) {
+							const property = parts[2];
+							const value = parts.slice(3).join(':');
+							result[property] = value;
+						}
+					} else if (parts[1] === 'light' && parts.length >= 4) {
+						// current:light:property:value - only apply in light mode
+						if (!isDark) {
+							const property = parts[2];
+							const value = parts.slice(3).join(':');
+							result[property] = value;
+						}
+					} else {
+						// current:property:value - apply always when current
+						const property = parts[1];
+						const value = parts.slice(2).join(':');
+						// Don't override if we already have a theme-specific value
+						if (!result[property]) {
+							result[property] = value;
+						}
+					}
+				}
+				return result;
 			}
 		}
 	};
@@ -1529,7 +751,7 @@
 </script>
 <style scoped>
 	* {
-		--vp-nav-caret-icon: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZT0iY3VycmVudENvbG9yIiBjbGFzcz0ic2l6ZS02Ij4KICA8cGF0aCBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Im04LjI1IDQuNSA3LjUgNy41LTcuNSA3LjUiIC8+Cjwvc3ZnPg==);
+		--vp-nav-caret-icon: v-bind(caretFallbackIcon);
 	}
 
 	.vp-navigator-item,
@@ -1538,9 +760,10 @@
 		overflow: visible;
 		padding: 0;
 		cursor: pointer;
-		align-items: stretch;
+		align-items: center;
 		transition: border-color .3s linear, opacity .3s linear, color .3s linear, background .3s linear, background-color .3s linear;
 		flex-wrap: nowrap !important;
+		gap: 6px;
 	}
 
 	.vp-navigator-item--vertical.vp-navigator-item--show .vp-navigator-item--arrow {
@@ -1670,9 +893,26 @@
 	.vp-navigator-item--small,
 	.vp-navigator-item--drop-up,
 	.vp-navigator-item--odd,
-	.vp-navigator-item--even,
-	.vp-navigator-item--link {
+	.vp-navigator-item--even {
 		cursor: inherit;
 	}
 
+	.vp-navigator-item--link {
+		cursor: pointer;
+	}
+
+	.vp-navigator-item,
+	.vp-navigator-item *,
+	.vp-navigator-item a,
+	.vp-navigator-item a:visited,
+	.vp-navigator-item a:hover {
+		cursor: pointer !important;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.wrapper {
+		display: flex;
+		flex-direction: column;
+	}
 </style>
