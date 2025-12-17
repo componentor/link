@@ -47,7 +47,7 @@
 			:style="{
 				marginLeft: $verticalLeftIndent,
 				marginRight: $verticalRightIndent,
-				...linkStyle
+				...labelStyle
 			}"
 			style="white-space: nowrap;display:inline-flex;align-items:center;flex-grow:1"
 		>
@@ -79,7 +79,7 @@
 				}"
 				:style="{
 					'z-index': level ? level + 1 : 1,
-					...wrapperStyle
+					...dropdownStyle
 				}"
 			>
 				<slot />
@@ -95,7 +95,7 @@
 			}"
 			:style="{
 				'z-index': level ? level + 1 : 1,
-				...wrapperStyle
+				...dropdownStyle
 			}"
 		>
 			<slot />
@@ -109,8 +109,8 @@
 	import {
 		parse,
 		getStyle,
-		mergeCstyle
-	} from '@componentor/breakpoint';
+		mergeAdapt
+	} from '@componentor/adaptive';
 	export default {
 		inject: {
 			path: { default: undefined },
@@ -131,19 +131,20 @@
 			childrenIconSizeProvider: { default: '' },
 			childrenCaretProvider: { default: '' },
 			childrenCaretSizeProvider: { default: '' },
-			childrenCstyleProvider: { default: '' },
-			wrapperCstyleProvider: { default: '' },
-			iconWrapperCstyleProvider: { default: '' },
-			iconCstyleProvider: { default: '' },
-			linkCstyleProvider: { default: '' },
-			caretWrapperCstyleProvider: { default: '' },
-			caretCstyleProvider: { default: '' },
-			childrenCstyleIconWrapperProvider: { default: '' },
-			childrenCstyleIconProvider: { default: '' },
-			childrenCstyleLinkProvider: { default: '' },
-			childrenCstyleCaretWrapperProvider: { default: '' },
-			childrenCstyleCaretProvider: { default: '' },
-			childrenCstyleModalProvider: { default: '' },
+			childrenAdaptProvider: { default: '' },
+			adaptProvider: { default: '' },
+			dropdownAdaptProvider: { default: '' },
+			iconWrapperAdaptProvider: { default: '' },
+			iconAdaptProvider: { default: '' },
+			labelAdaptProvider: { default: '' },
+			caretWrapperAdaptProvider: { default: '' },
+			caretAdaptProvider: { default: '' },
+			childrenIconWrapperAdaptProvider: { default: '' },
+			childrenIconAdaptProvider: { default: '' },
+			childrenLabelAdaptProvider: { default: '' },
+			childrenCaretWrapperAdaptProvider: { default: '' },
+			childrenCaretAdaptProvider: { default: '' },
+			modalAdaptProvider: { default: '' },
 			model: { default: () => ({}) }
 		},
 		provide() {
@@ -162,22 +163,30 @@
 				level: computed(() => this.level ? this.level + 1 : 1),
 				order: computed(() => this.order === 'odd' ? 'even' : 'odd'),
 				reverseIcon: computed(() => !this.iconReverse && !this.childrenIconReverse ? this.reverseIcon : this.childrenIconReverse ? this.childrenIconReverse === 'true' : this.iconReverse === 'true'),
+				
+				// adapt providers
+				dropdownAdaptProvider: computed(() => mergeAdapt(this.adaptDropdown, this.dropdownAdaptProvider)),
+				modalAdaptProvider: computed(() => this.modalAdaptProvider),
+
+				// This providers should provide in the given value order: child, current, parent, parent parent
+				adaptProvider: computed(() => mergeAdapt(this.childrenAdapt, this.adapt, this.childrenAdaptProvider, this.adaptProvider)),
+				iconWrapperAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptIconWrapper, this.adaptIconWrapper, this.childrenIconWrapperAdaptProvider, this.iconWrapperAdaptProvider)),
+				iconAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptIcon, this.adaptIcon, this.childrenIconAdaptProvider, this.iconAdaptProvider)),
+				labelAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptLabel, this.adaptLabel, this.childrenLabelAdaptProvider, this.labelAdaptProvider)),
+				caretWrapperAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptCaretWrapper, this.adaptCaretWrapper, this.childrenCaretWrapperAdaptProvider, this.caretWrapperAdaptProvider)),
+				caretAdaptProvider: computed(() => mergeAdapt(this.childrenAdaptCaret, this.adaptCaret, this.childrenCaretAdaptProvider, this.caretAdaptProvider)),
+
+				// Discard adapt child provisions (only used with Navigator parent wrapper)
+				childrenAdaptProvider: computed(() => ''),
+				childrenIconWrapperAdaptProvider: computed(() => ''),
+				childrenIconAdaptProvider: computed(() => ''),
+				childrenLabelAdaptProvider: computed(() => ''),
+				childrenCaretWrapperAdaptProvider: computed(() => ''),
+				childrenCaretAdaptProvider: computed(() => ''),
+
 				childrenIconSizeProvider: computed(() => this.childrenIconSize || this.childrenIconSizeProvider),
 				childrenCaretProvider: computed(() => this.childrenCaret || this.childrenCaretProvider),
 				childrenCaretSizeProvider: computed(() => this.childrenCaretSize || this.childrenCaretSizeProvider),
-				childrenCstyleProvider: computed(() => this.childrenCstyleItem || this.childrenCstyle || this.childrenCstyleProvider),
-				wrapperCstyleProvider: computed(() => this.wrapperCstyle || this.wrapperCstyleProvider),
-				iconWrapperCstyleProvider: computed(() => this.childrenCstyleIconWrapper || this.childrenCstyleIconWrapperProvider || this.iconWrapperCstyle || this.iconWrapperCstyleProvider),
-				iconCstyleProvider: computed(() => this.childrenCstyleIcon || this.childrenCstyleIconProvider || this.iconCstyle || this.iconCstyleProvider),
-				linkCstyleProvider: computed(() => this.childrenCstyleLink || this.childrenCstyleLinkProvider || this.linkCstyle || this.linkCstyleProvider),
-				caretWrapperCstyleProvider: computed(() => this.childrenCstyleCaretWrapper || this.childrenCstyleCaretWrapperProvider || this.caretWrapperCstyle || this.caretWrapperCstyleProvider),
-				caretCstyleProvider: computed(() => this.childrenCstyleCaret || this.childrenCstyleCaretProvider || this.caretCstyle || this.caretCstyleProvider),
-				childrenCstyleIconWrapperProvider: computed(() => this.childrenCstyleIconWrapper || this.childrenCstyleIconWrapperProvider),
-				childrenCstyleIconProvider: computed(() => this.childrenCstyleIcon || this.childrenCstyleIconProvider),
-				childrenCstyleLinkProvider: computed(() => this.childrenCstyleLink || this.childrenCstyleLinkProvider),
-				childrenCstyleCaretWrapperProvider: computed(() => this.childrenCstyleCaretWrapper || this.childrenCstyleCaretWrapperProvider),
-				childrenCstyleCaretProvider: computed(() => this.childrenCstyleCaret || this.childrenCstyleCaretProvider),
-				childrenCstyleModalProvider: computed(() => this.childrenCstyleModalProvider),
 				direction: computed(() => this.childrenItemDirection ? this.childrenItemDirection : this.itemDirection ? this.itemDirection : this.direction),
 				center: computed(() => false),
 				orientation: computed(() => this.orientation),
@@ -360,59 +369,57 @@
 				type: Boolean,
 				default: false
 			},
-			cstyle: {
+			// Current level styling
+			adapt: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			childrenCstyle: {
+			adaptIconWrapper: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			childrenCstyleItem: {
+			adaptIcon: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			wrapperCstyle: {
+			adaptLabel: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			iconWrapperCstyle: {
+			adaptCaretWrapper: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			iconCstyle: {
+			adaptCaret: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			linkCstyle: {
+			adaptDropdown: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			caretWrapperCstyle: {
+			// Children styling
+			childrenAdapt: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			caretCstyle: {
+			childrenAdaptIconWrapper: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			childrenCstyleIconWrapper: {
+			childrenAdaptIcon: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			childrenCstyleIcon: {
+			childrenAdaptLabel: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			childrenCstyleLink: {
+			childrenAdaptCaretWrapper: {
 				type: [String, Object, Array],
 				default: ''
 			},
-			childrenCstyleCaretWrapper: {
-				type: [String, Object, Array],
-				default: ''
-			},
-			childrenCstyleCaret: {
+			childrenAdaptCaret: {
 				type: [String, Object, Array],
 				default: ''
 			},
@@ -453,34 +460,45 @@
 			linkTag() {
 				return this.tag || (this.external ? 'a' : 'router-link');
 			},
-			cstyleString() {
-				// Handle both raw values and Vue refs (childrenCstyleProvider is a computed ref from Navigator)
+			adaptString() {
+				// Handle both raw values and Vue refs (adaptProvider is a computed ref from Navigator or Parent Link)
 				// Use modal provider when in small/modal mode
 				const isSmall = this.small && typeof this.small === 'object' && 'value' in this.small ? this.small.value : this.small;
-				let providerValue = isSmall && this.childrenCstyleModalProvider ? this.childrenCstyleModalProvider : this.childrenCstyleProvider;
+				let providerValue = isSmall && this.modalAdaptProvider ? this.modalAdaptProvider : this.adaptProvider;
 				// Unwrap if it's a ref
 				if (providerValue && typeof providerValue === 'object' && 'value' in providerValue) {
 					providerValue = providerValue.value;
 				}
-				return mergeCstyle(providerValue, this.cstyle);
+				return mergeAdapt(this.adapt, providerValue);
 			},
-			wrapperCstyleString() {
-				return mergeCstyle(this.wrapperCstyleProvider, this.wrapperCstyle);
+			childrenAdaptString() {
+				// Handle both raw values and Vue refs (childrenAdaptProvider is a computed ref from Navigator or Parent Link)
+				// Use modal provider when in small/modal mode
+				const isSmall = this.small && typeof this.small === 'object' && 'value' in this.small ? this.small.value : this.small;
+				let providerValue = isSmall && this.modalAdaptProvider ? this.modalAdaptProvider : mergeAdapt(this.childrenAdaptProvider, this.adaptProvider);
+				// Unwrap if it's a ref
+				if (providerValue && typeof providerValue === 'object' && 'value' in providerValue) {
+					providerValue = providerValue.value;
+				}
+				return mergeAdapt(this.childrenAdapt, this.adapt, providerValue);
 			},
-			iconWrapperCstyleString() {
-				return mergeCstyle(this.iconWrapperCstyleProvider, this.iconWrapperCstyle);
+			dropdownAdaptString() {
+				return mergeAdapt(this.adaptDropdown, this.dropdownAdaptProvider);
 			},
-			iconCstyleString() {
-				return mergeCstyle(this.iconCstyleProvider, this.iconCstyle);
+			iconWrapperAdaptString() {
+				return mergeAdapt(this.adaptIconWrapper, this.iconWrapperAdaptProvider);
 			},
-			linkCstyleString() {
-				return mergeCstyle(this.linkCstyleProvider, this.linkCstyle);
+			iconAdaptString() {
+				return mergeAdapt(this.adaptIcon, this.iconAdaptProvider);
 			},
-			caretWrapperCstyleString() {
-				return mergeCstyle(this.caretWrapperCstyleProvider, this.caretWrapperCstyle);
+			labelAdaptString() {
+				return mergeAdapt(this.adaptLabel, this.labelAdaptProvider);
 			},
-			caretCstyleString() {
-				return mergeCstyle(this.caretCstyleProvider, this.caretCstyle);
+			caretWrapperAdaptString() {
+				return mergeAdapt(this.adaptCaretWrapper, this.caretWrapperAdaptProvider);
+			},
+			caretAdaptString() {
+				return mergeAdapt(this.adaptCaret, this.caretAdaptProvider);
 			},
 			stateArray() {
 				const states = [];
@@ -504,26 +522,26 @@
 			computedStyle() {
 				const baseStyle = {};
 				baseStyle['flex-direction'] = (this.iconReverse === '' ? this.reverseIcon : this.iconReverse === 'true') ? 'row-reverse' : 'row';
-				const cstyleObject = this.computeCstyleToStyleObject(this.cstyleString);
-				return { ...baseStyle, ...cstyleObject };
+				const adaptObject = this.computeAdaptToStyleObject(this.adaptString);
+				return { ...baseStyle, ...adaptObject };
 			},
-			wrapperStyle() {
-				return this.computeCstyleToStyleObject(this.wrapperCstyleString);
+			dropdownStyle() {
+				return this.computeAdaptToStyleObject(this.dropdownAdaptString);
 			},
 			iconWrapperStyle() {
-				return this.computeCstyleToStyleObject(this.iconWrapperCstyleString);
+				return this.computeAdaptToStyleObject(this.iconWrapperAdaptString);
 			},
 			iconStyle() {
-				return this.computeCstyleToStyleObject(this.iconCstyleString);
+				return this.computeAdaptToStyleObject(this.iconAdaptString);
 			},
-			linkStyle() {
-				return this.computeCstyleToStyleObject(this.linkCstyleString);
+			labelStyle() {
+				return this.computeAdaptToStyleObject(this.labelAdaptString);
 			},
 			caretWrapperStyle() {
-				return this.computeCstyleToStyleObject(this.caretWrapperCstyleString);
+				return this.computeAdaptToStyleObject(this.caretWrapperAdaptString);
 			},
 			caretStyle() {
-				return this.computeCstyleToStyleObject(this.caretCstyleString);
+				return this.computeAdaptToStyleObject(this.caretAdaptString);
 			},
 			currentPath() {
 				// Get current path from router or window.location
@@ -622,17 +640,17 @@
 			}
 		},
 		methods: {
-			computeCstyleToStyleObject(cstyleString) {
-				if (!cstyleString) return {};
-				const parsed = parse(cstyleString);
-				const cstyleResult = getStyle(parsed, {
+			computeAdaptToStyleObject(adaptString) {
+				if (!adaptString) return {};
+				const parsed = parse(adaptString);
+				const adaptResult = getStyle(parsed, {
 					theme: this.$theme,
 					breakpoint: this.$breakpoint,
 					states: this.stateArray,
 					breakpointStrategy: this.breakpointStrategy,
 					themeStrategy: this.themeStrategy
 				});
-				return this.cssStringToObject(cstyleResult);
+				return this.cssStringToObject(adaptResult);
 			},
 			toggle(forceOpen = false) {
 				if (forceOpen) {
@@ -685,12 +703,12 @@
 				}
 				return result;
 			},
-			// Extract styles prefixed with 'current:' since @componentor/breakpoint
+			// Extract styles prefixed with 'current:' since @componentor/adaptive
 			// doesn't recognize 'current' as a valid state (only CSS pseudo-classes)
-			extractCurrentStyles(cstyleString) {
-				if (!cstyleString) return {};
+			extractCurrentStyles(adaptString) {
+				if (!adaptString) return {};
 				const result = {};
-				const declarations = cstyleString.split(';').map(s => s.trim()).filter(s => s.length > 0);
+				const declarations = adaptString.split(';').map(s => s.trim()).filter(s => s.length > 0);
 				const isDark = this.theme === 'dark' || (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
 
 				for (const declaration of declarations) {
